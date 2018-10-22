@@ -70,9 +70,14 @@ class Tracker:
                         self.lock.acquire()
                         peer_id = self.handle_acquire_message(payload)
                         self.lock.release()
+                        #debug...
+                        #print(self.file_details)
+                        #print(self.file_owners)
+                        #print(self.chunk_details)
+
                         #if tcp need to ack back ??? then ack using the peer_id (source ip and port all there)
                     #create if statements for other types of messages here
-
+                    #if payload[MESSAGE_TYPE] == other request type:
             except Exception as e:
                 client.close()
                 print(e)
