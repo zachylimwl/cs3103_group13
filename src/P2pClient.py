@@ -50,7 +50,7 @@ class P2pClient:
     # }
     def craft_payload_for_tracker(self):
         payload = {}
-        payload[PAYLOAD_PEER_ID_KEY] = str(self.host) + ":" + str{self.port}
+        payload[PAYLOAD_PEER_ID_KEY] = str(self.host) + ":" + str(self.port)
         payload[PAYLOAD_LIST_OF_FILES_KEY] = self.files
         payload[PAYLOAD_LIST_OF_CHUNKS_KEY] = self.chunks
         payload[MESSAGE_TYPE] = TRACKER_REQUEST_TYPE_ADVERTISE
@@ -97,7 +97,7 @@ class P2pClient:
         res = [] 
         for ch in chunks:
             string = ch.split(".")
-            arr = string[0].split("_")
+            arr = string[0].rsplit("_", 1)
             file_name = arr[0]
             chunk_number = arr[1]
             if file_name in dic:
@@ -107,7 +107,6 @@ class P2pClient:
 
         for file_name, list_of_chunks in dic.items():
             res.append({PAYLOAD_FILENAME_KEY: file_name, PAYLOAD_LIST_OF_CHUNKS_KEY: list_of_chunks})
-
         return res
 
     #Process the directory
@@ -125,7 +124,6 @@ class P2pClient:
         files = [i for i in files_in_dir if i[-6:] != CUSTOM_CHUNK_EXTENSION]
         #else, it's a chunk
         chunks = [i for i in files_in_dir if i[-6:] == CUSTOM_CHUNK_EXTENSION]
-
         #format the files and chunks to our standard, then put in self
         self.files = [self.format_whole_file(j) for j in files]
         self.chunks = self.format_chunk(chunks)
