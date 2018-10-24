@@ -1,0 +1,35 @@
+[Initial seeder] Make file into chunks of 256kb, and label each chunk with chunk_number
+Mechanism to ensure checksum before chunking equals combining all chunks
+Every client will periodically (determine duration) update Tracker [advertise #3 ]
+
+The main objective of this course is to provide an opportunity for the students to have hands-on experience with,
+Configuring and interconnecting LANS using networking devices/technologies (routers, switches, hubs, Internet of Things (IoT)),
+Networking protocols (DHCP, DNS, RIP, OSPF, ICMP, TCP, UDP, Wireless LAN, VLAN protocols, SIP, SSL, MPLS, 6LoWPAN,  IPv6 Routing Protocol for Low-Power and Lossy Networks, CoAP, MQTT, IPv6 over the TSCH mode),
+Foundations of modern networking (SDN, NFV with openflow, opendaylight, openstack),
+Networking tools (tcpdump, netstat, ping, traceroute, mininet),
+and developing network applications (Client/Server, P2P) using Socket interface and IoT applications using Raspberry Pi and/or SensorTag  for data collection and dissemination from sensors using different standards - CoAP Client/Server, MQTT Client/Broker, REST/HTTP)
+Additionally, the course covers the following topics in greater technical depth than a basic networking course:
+VLAN, Wireless LAN (802.11b/g/n), fundamentals of Cryptography and network/IoT Security protocols (SSL, PGP, IPSec-VPN-ESP, TLS/DTLS transport for securing IoT data, Securing IoT data with JSON Object Signing and Encryption (JOSE), CBOR (Concise Binary Object Representation),  COSE (CBOR Object Signing and Encryption, etc),  Higher level protocols (HTTP, FTP, SMTP, POP, IMAP, DNS, VoIP with SIP and H.323 protocol suites) and Modern Networking Technologies (Software Defined Networks (SDN) with Openflow Switches and Opendaylight and Network Function Virtualisation (NFV) with Openstack.
+
+Module Theme: "Build, Configure and Observe the Protocols in Action, Design protocols and algorithms for Modern networks and Develop Applications with the Protocols"
+
+The main objective of this course is to provide an opportunity for the students to have hands-on experience with,
+Configuring and interconnecting LANS using networking devices/technologies (routers, switches, hubs, Internet of Things (IoT)),
+Networking protocols (DHCP, DNS, RIP, OSPF, ICMP, TCP, UDP, Wireless LAN, VLAN protocols, SIP, SSL, MPLS, 6LoWPAN,  IPv6 Routing Protocol for Low-Power and Lossy Networks, CoAP, MQTT, IPv6 over the TSCH mode),
+Foundations of modern networking (SDN, NFV with openflow, opendaylight, openstack),
+Networking tools (tcpdump, netstat, ping, traceroute, mininet),
+and developing network applications (Client/Server, P2P) using Socket interface and IoT applications using Raspberry Pi and/or SensorTag  for data collection and dissemination from sensors using different standards - CoAP Client/Server, MQTT Client/Broker, REST/HTTP)
+Additionally, the course covers the following topics in greater technical depth than a basic networking course:
+VLAN, Wireless LAN (802.11b/g/n), fundamentals of Cryptography and network/IoT Security protocols (SSL, PGP, IPSec-VPN-ESP, TLS/DTLS transport for securing IoT data, Securing IoT data with JSON Object Signing and Encryption (JOSE), CBOR (Concise Binary Object Representation),  COSE (CBOR Object Signing and Encryption, etc),  Higher level protocols (HTTP, FTP, SMTP, POP, IMAP, DNS, VoIP with SIP and H.323 protocol suites) and Modern Networking Technologies (Software Defined Networks (SDN) with Openflow Switches and Opendaylight and Network Function Virtualisation (NFV) with Openstack.
+
+Module Theme: "Build, Configure and Observe the Protocols in Action, Design protocols and algorithms for Modern networks and Develop Applications with the Protocols"
+Prerequisites
+Top
+Prerequisites: EE3204 - Computer Communication Networks I  or CS2105 Introduction to Computer Networks
+
+If you are an exchange student, you must have basic knowledge of computer networks like Local Area Networks, Ethernet, Wireless Networks, IP addressing, basic principles of IP routing (RIP/OSPF), ICMP, ARP, DHCP, TCP (Basics and Congestion Control) and UDP.
+
+Modular Credits: 4.0 MC
+
+Teaching Modes
+Top
