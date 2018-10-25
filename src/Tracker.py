@@ -1,6 +1,6 @@
 import socket
 import threading
-import Queue
+import queue
 from threading import Lock
 import json
 
@@ -19,20 +19,19 @@ class Tracker:
         # IP:PORT
         self.ip_port_to_id = {}
         self.ip_port_index = 0
-        self.freed_ip_port_indexes = Queue()
+        self.freed_ip_port_indexes = queue.Queue(maxsize=0)
 
 
     def handle_acquire_message(self, payload):
         peer_id = payload[PAYLOAD_PEER_ID_KEY]
         
-        if peer_id not in ip_port_to_id:
-            if freed_ip_port_indexes.empty()
-                ip_port_to_id[peer_id] = ip_port_index
-                ip_port_index += 1
-            else
-                ip_port_to_id[peer_id] = freed_ip_port_indexes.get()
+        if peer_id not in self.ip_port_to_id:
+            if self.freed_ip_port_indexes.empty():
+                self.ip_port_to_id[peer_id] = self.ip_port_index
+                self.ip_port_index += 1
+            else:
+                self.ip_port_to_id[peer_id] = self.freed_ip_port_indexes.get()
         
-
         #process files first
 
         #if the file is appearing the first time in tracker
