@@ -132,21 +132,24 @@ class P2pClient:
     #res = {"chunks": [1,2,3,4],
     #       "file_name": file_name_string,
     #      }
-    #return the list of res, i.e. [{"chunks": [1,2,3,4], "file_name": f1}, {"chunks": [1,2,3], "file_name": f2}... ]
+    #return the list of res, i.e. [{"chunks": [(1, checksum), (2, checksum)...], "file_name": f1},
+    #  {"chunks": [(1, checksum), (2, checksum)...], "file_name": f2}... ]
     def format_chunk(self, chunks):
         #naming convention: "file_name"_"chunk_number".chunk
         #e.g. script_3.chunk
         dic = {}
         res = [] 
         for ch in chunks:
-            string = ch.split(".")
+            chunk_path = os.path.join(self.directory, ch)
+            checksum = hashlib.md5(open(chunk_path, 'rb').read()).hexdigest()
+            string = ch.rsplit(".", 1)
             arr = string[0].rsplit("_", 1)
             file_name = arr[0]
             chunk_number = arr[1]
             if file_name in dic:
-                dic[file_name].append(chunk_number)
+                dic[file_name].append((chunk_number, checksum))
             else:
-                dic[file_name] = [chunk_number]
+                dic[file_name] = [(chunk_number, checksum)]
 
         for file_name, list_of_chunks in dic.items():
             res.append({PAYLOAD_FILENAME_KEY: file_name, PAYLOAD_LIST_OF_CHUNKS_KEY: list_of_chunks})
