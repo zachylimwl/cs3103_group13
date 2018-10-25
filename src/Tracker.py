@@ -52,6 +52,29 @@ class Tracker:
                 self.chunk_details[file_name][peer_id] = list(set(self.chunk_details[file_name][peer_id] + chunk_from_peer[PAYLOAD_LIST_OF_CHUNKS_KEY]))  
 
         return peer_id
+    
+    # Creates the list of chunks for a specific file
+    # Format:
+    # {
+    #   MESSAGE_TYPE : TRACKER_RESPONSE_TYPE_SUCCESS_QUERY_CHUNK_LIST
+    #   file_name : {
+    #                   CHUNK1 : ([PEER_ID_LIST], CHECKSUM),
+    #                   CHUNK2 : ([PEER_ID_LIST], CHECKSUM),
+    #                   ...  
+    #               }
+    # }
+    def create_chunk_list(self, file_name):
+        response = {}
+        # Checks if file exists
+        if file_name not in self.entries:
+            response[MESSAGE_TYPE] = TRACKER_RESPONSE_TYPE_ERROR
+            return response
+        # Adds chunk list to response if file exist
+        else:
+            response[MESSAGE_TYPE] = TRACKER_RESPONSE_TYPE_SUCCESS_QUERY_CHUNK_LIST
+            response[file_name] = self.entries[file_name]
+            return response
+            
 
     def listen_for_new_client(self):
         self.socket.listen()
@@ -71,6 +94,10 @@ class Tracker:
                         peer_id = self.handle_acquire_message(payload)
                         self.lock.release()
                         #if tcp need to ack back ??? then ack using the peer_id (source ip and port all there)
+                    elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_QUERY_CHUNKS:
+                        # Sends list of chunks and owners back to peer
+                        chunk_list = create_chunk_list(self, payload[FILE_NAME])
+                        client.sendall(json.dumps(file_chunk_response))
                     #create if statements for other types of messages here
                     #if payload[MESSAGE_TYPE] == other request type:
             except Exception as e:

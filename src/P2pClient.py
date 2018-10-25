@@ -4,7 +4,6 @@ import os
 import hashlib
 from constants import *
 
-
 class P2pClient:
     def __init__(self, host, port):
         self.trackerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -19,8 +18,24 @@ class P2pClient:
         self.directory = os.getcwd()
         pass
 
+    # Download chunk from peer
+    def download_chunk_from_peer(self, file_name, chunk_number, chunk_details):
+        ### IMPLEMENT get key from PC
+        peer_list = chunk_details["CHUNK_OWNERS"]
+        # Uses a random peer for now
+        random_peer_index = randint(0, len(peer_list))
+        peer = peer_list.get(random_peer_index)
+        peer_ip = ### IMPLEMENT
+        peer_port = ### IMPLEMENT
+
+    # Creates the message request for requesting a file chunk from another peer
+    def create_file_chunk_request(self, file_name, chunk_number, peer_ip, peer_port):
+        request = {}
+        request[MESSAGE_TYPE] = P2P_SERVER_REQUEST_TYPE_DOWNLOAD_CODE
+
     def entry(self):
-        request = { MESSAGE_TYPE: TRACKER_REQUEST_TYPE_ENTRY}
+        request = {}
+        request[MESSAGE_TYPE] = TRACKER_REQUEST_TYPE_ENTRY
         self.send_to_tracker(request)
 
     def advertise(self):
@@ -32,6 +47,21 @@ class P2pClient:
         request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT}
         self.send_to_tracker(request)
 
+    def download_file(self, file_name):
+        # Queries for list of chunks and owner from tracker
+        request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_QUERY_CHUNKS, FILE_NAME: file_name}
+        self.send_to_tracker(request)
+        response = self.receive_from_tracker()
+        # Handle any potential file not found
+        if response[MESSAGE_TYPE] == TRACKER_RESPONSE_TYPE_ERROR:
+            print("File does not exist.")
+            return
+        chunk_list = response[file_name]
+        # Send to P2P server to request for download
+        for chunk in chunk_list:
+            ### IMPLEMENT download each chunk
+        ### IMPLEMENT piecing together each file
+        
     def list_all(self):
         request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_LIST_ALL}
         self.send_to_tracker(request)
@@ -62,8 +92,21 @@ class P2pClient:
             self.trackerSocket.sendall(json.dumps(request).encode())
         except Exception as e:
             print(e)
-        
 
+    # Receives a response from the tracker
+    def receive_from_tracker(self):
+        try:
+            data = ''
+            while True:
+                recv = trackerSocker.recv(1024)
+                if not recv:
+                    break
+                data += recv
+            received_data = json.loads(data)
+            return received_data
+        except Exception as e:
+            print(e)
+        
 
     #Change file to a dictionary format
     # res = {"checksum": checksum_string,

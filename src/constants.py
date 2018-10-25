@@ -8,11 +8,18 @@ CUSTOM_CHUNK_EXTENSION = ".chunk"
 DEFAULT_FILE_DIRECTORY = "../test_directory"
 
 MESSAGE_TYPE = "message_type"
+FILE_NAME = "file_name"
 TRACKER_REQUEST_TYPE_ENTRY = "entry"
 TRACKER_REQUEST_TYPE_ADVERTISE = "advertise"
+TRACKER_REQUEST_TYPE_QUERY_CHUNKS = "query_chunks"
 TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT = "query_for_content"
 TRACKER_REQUEST_TYPE_LIST_ALL = "list_all"
 TRACKER_REQUEST_TYPE_EXIT = "exit"
+
+TRACKER_RESPONSE_TYPE_ERROR = "error"
+TRACKER_RESPONSE_TYPE_SUCCESS_QUERY_CHUNK_LIST = "success_chunk_list"
+
+PEER_REQUEST_TYPE_CHUNK_DOWNLOAD = "download_chunk"
 
 TRACKER_REQUEST_TYPE_LIST_ALL_CODE = "1"
 TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT_CODE = "2"
@@ -26,7 +33,6 @@ PAYLOAD_PEER_ID_KEY = "peer_id"
 PAYLOAD_NUMBER_OF_CHUNKS_KEY = "number_of_chunks"
 PAYLOAD_LIST_OF_CHUNKS_KEY = "chunks"
 PAYLOAD_LIST_OF_FILES_KEY = "files"
-
 
 OPENING_MESSAGE = """
 ========================================================================
