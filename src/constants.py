@@ -31,6 +31,8 @@ PAYLOAD_LIST_OF_CHUNKS_KEY = "chunks"
 PAYLOAD_LIST_OF_FILES_KEY = "files"
 PAYLOAD_FILE_CHUNK_ID_KEY = "chunk_id"
 
+CHUNK_NUMBER_KEY = "chunk_number"
+LIST_OF_PEERS_KEY = "list_of_peers"
 
 OPENING_MESSAGE = """
 ========================================================================
