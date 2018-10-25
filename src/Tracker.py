@@ -2,6 +2,7 @@ import socket
 import threading
 from threading import Lock
 import json
+import queue
 
 from constants import *
 
@@ -16,9 +17,18 @@ class Tracker:
         self.chunk_details = {}
         self.entries = {}
 
+        self.ip_port_to_id = {}
+        self.ip_port_index = 0
+        self.freed_ip_port_indexes = queue.Queue(maxsize=0)
 
     def handle_advertise_message(self, payload):
         peer_id = payload[PAYLOAD_PEER_ID_KEY]
+        if peer_id not in self.ip_port_to_id:
+            if self.freed_ip_port_indexes.empty():
+                self.ip_port_to_id[peer_id] = self.ip_port_index
+                self.ip_port_index += 1
+            else
+                self.ip_port_to_id[peer_id] = self.freed_ip_port_indexes.get()
 
         for file_from_peer in payload[PAYLOAD_LIST_OF_FILES_KEY]:
             file_name = file_from_peer[PAYLOAD_FILENAME_KEY]
