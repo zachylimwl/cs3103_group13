@@ -1,5 +1,6 @@
 import socket
 import threading
+import Queue
 from threading import Lock
 import json
 
@@ -15,9 +16,22 @@ class Tracker:
         self.file_owners = {} #for query 2: asking for files owners
         self.chunk_details = {}
 
+        # IP:PORT
+        self.ip_port_to_id = {}
+        self.ip_port_index = 0
+        self.freed_ip_port_indexes = Queue()
+
 
     def handle_acquire_message(self, payload):
         peer_id = payload[PAYLOAD_PEER_ID_KEY]
+        
+        if peer_id not in ip_port_to_id:
+            if freed_ip_port_indexes.empty()
+                ip_port_to_id[peer_id] = ip_port_index
+                ip_port_index += 1
+            else
+                ip_port_to_id[peer_id] = freed_ip_port_indexes.get()
+        
 
         #process files first
 
