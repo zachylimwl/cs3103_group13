@@ -16,7 +16,6 @@ dir = os.getcwd()
 # print(filename)
 CHUNK_SIZE = 1024
 file_name = "file2.txt"
-res = {}
 full_path = os.path.join(dir, file_name)
 checksum = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
 file_size = os.stat(full_path).st_size
@@ -28,12 +27,17 @@ else:
     number_of_chunks = int((file_size / CHUNK_SIZE) + 1)
 
 #print(number_of_chunks)
-res["checksum"] = checksum
-res["number_of_chunks"] = number_of_chunks
-res["file_name"] = file_name
-#print(res)
 
-ch = "file_teset_1.chunk"
-string = ch.split(".")
-arr = string[0].rsplit('_', 1)
-print(arr)
+def if_key_value_pair_exists(key, val, item):
+    if key in item and val == item[key]:
+        return True
+    else:
+        return False
+arr = [ {'file_name': "file1",
+        'chunks': [1, 3]}, {'file_name': "file2", 'chunks': [1,3,4]}]
+key, val = 'file_name', "file1" 
+for item in arr:
+    if(if_key_value_pair_exists(key, val, item)):
+        print("ok")
+
+print("end")    
