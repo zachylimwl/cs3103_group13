@@ -14,42 +14,45 @@ class Tracker:
         self.file_details = {}
         self.file_owners = {} #for query 2: asking for files owners
         self.chunk_details = {}
+        self.entries = {}
 
 
-    def handle_acquire_message(self, payload):
+    def handle_advertise_message(self, payload):
         peer_id = payload[PAYLOAD_PEER_ID_KEY]
 
-        #process files first
-
-        #if the file is appearing the first time in tracker
-        #then add it as a new entry in the dictionary of dictionaries in self.fiel_details
         for file_from_peer in payload[PAYLOAD_LIST_OF_FILES_KEY]:
             file_name = file_from_peer[PAYLOAD_FILENAME_KEY]
-            if file_name not in self.file_details:
-                file_checksum = file_from_peer[PAYLOAD_CHECKSUM_KEY]
-                number_of_chunks = file_from_peer[PAYLOAD_NUMBER_OF_CHUNKS_KEY]
-                self.file_details[file_name] = {}
-                self.file_details[file_name][PAYLOAD_CHECKSUM_KEY] = file_checksum
-                self.file_details[file_name][PAYLOAD_NUMBER_OF_CHUNKS_KEY] = number_of_chunks
-            #add owner
+            if file_name not in self.entries:
+                self.entries[file_name] = {}
+                self.entries[file_name][PAYLOAD_NUMBER_OF_CHUNKS_KEY] = file_from_peer[PAYLOAD_NUMBER_OF_CHUNKS_KEY]
             if file_name not in self.file_owners:
                 #create new list for that peer_id
                 self.file_owners[file_name] = [peer_id]
-            #well if the file is there, but this owner is not in the list
             elif peer_id not in self.file_owners[file_name]:
                 self.file_owners[file_name].append(peer_id)
 
-        #now we process the chunks
-        for chunk_from_peer in payload[PAYLOAD_LIST_OF_CHUNKS_KEY]:
-            file_name = chunk_from_peer[PAYLOAD_FILENAME_KEY]
-            #if the chunk's file not inside at all
-            if file_name not in self.chunk_details:
-                self.chunk_details[file_name] = {peer_id: chunk_from_peer[PAYLOAD_LIST_OF_CHUNKS_KEY]}
-            #if the chunk's file is inside, but the peer is not inside
-            elif peer_id not in self.chunk_details[file_name]:
-                self.chunk_details[file_name][peer_id] = chunk_from_peer[PAYLOAD_LIST_OF_CHUNKS_KEY]
-            else:   #just update the current one
-                self.chunk_details[file_name][peer_id] = list(set(self.chunk_details[file_name][peer_id] + chunk_from_peer[PAYLOAD_LIST_OF_CHUNKS_KEY]))  
+        for chunks_of_file_from_peer in payload[PAYLOAD_LIST_OF_CHUNKS_KEY]:
+            file_name = chunks_of_file_from_peer[PAYLOAD_FILENAME_KEY]
+            #for every chunk of the file
+            for ch in chunks_of_file_from_peer[PAYLOAD_LIST_OF_CHUNKS_KEY]:
+                chunk_num = ch[0]
+                checksum = ch[1]
+                print(chunk_num + " " + checksum)
+                self.entries[file_name][chunk_num] = checksum
+
+                #if chunk number not in the entries  
+                # if chunk_num not in self.entries[file_name]:
+                #     print("yes")
+                    # self.entries[file_name][chunk_num] = {}
+                    # self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY] = []
+                    # self.entries[file_name][chunk_num][PAYLOAD_CHECKSUM_KEY] = checksum
+                #     self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY].append(peer_id)
+                # #if the chunk's file is inside, but the peer is not inside
+                # elif peer_id not in self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY]:
+                #     self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY].append(peer_id)
+                # #else:
+
+
 
         return peer_id
 
@@ -68,9 +71,9 @@ class Tracker:
                     payload = json.loads(data)          
                     if payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_ADVERTISE:
                         self.lock.acquire()
-                        peer_id = self.handle_acquire_message(payload)
+                        peer_id = self.handle_advertise_message(payload)
                         self.lock.release()
-                        print(self.chunk_details)
+                        #print(self.entries)
                         #if tcp need to ack back ??? then ack using the peer_id (source ip and port all there)
                     #create if statements for other types of messages here
                     #if payload[MESSAGE_TYPE] == other request type:
