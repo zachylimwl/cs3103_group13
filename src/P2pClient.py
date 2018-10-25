@@ -54,7 +54,6 @@ class P2pClient:
         payload[PAYLOAD_LIST_OF_FILES_KEY] = self.files
         payload[PAYLOAD_LIST_OF_CHUNKS_KEY] = self.chunks
         payload[MESSAGE_TYPE] = TRACKER_REQUEST_TYPE_ADVERTISE
-        print(payload)
         return payload
 
 
@@ -100,7 +99,7 @@ class P2pClient:
         for ch in chunks:
             chunk_path = os.path.join(self.directory, ch)
             checksum = hashlib.md5(open(chunk_path, 'rb').read()).hexdigest()
-            string = ch.split(".")
+            string = ch.rsplit(".", 1)
             arr = string[0].rsplit("_", 1)
             file_name = arr[0]
             chunk_number = arr[1]

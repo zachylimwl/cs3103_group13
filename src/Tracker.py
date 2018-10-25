@@ -32,26 +32,22 @@ class Tracker:
                 self.file_owners[file_name].append(peer_id)
 
         for chunks_of_file_from_peer in payload[PAYLOAD_LIST_OF_CHUNKS_KEY]:
-            file_name = chunks_of_file_from_peer[PAYLOAD_FILENAME_KEY]
+            fileName = chunks_of_file_from_peer[PAYLOAD_FILENAME_KEY]
             #for every chunk of the file
             for ch in chunks_of_file_from_peer[PAYLOAD_LIST_OF_CHUNKS_KEY]:
                 chunk_num = ch[0]
                 checksum = ch[1]
-                print(chunk_num + " " + checksum)
-                self.entries[file_name][chunk_num] = checksum
 
                 #if chunk number not in the entries  
-                # if chunk_num not in self.entries[file_name]:
-                #     print("yes")
-                    # self.entries[file_name][chunk_num] = {}
-                    # self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY] = []
-                    # self.entries[file_name][chunk_num][PAYLOAD_CHECKSUM_KEY] = checksum
-                #     self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY].append(peer_id)
-                # #if the chunk's file is inside, but the peer is not inside
-                # elif peer_id not in self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY]:
-                #     self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY].append(peer_id)
-                # #else:
-
+                if chunk_num not in self.entries[file_name]:
+                    self.entries[file_name][chunk_num] = {}
+                    self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY] = []
+                    self.entries[file_name][chunk_num][PAYLOAD_CHECKSUM_KEY] = checksum
+                    self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY].append(peer_id)
+                #if the chunk's file is inside, but the peer is not inside
+                elif peer_id not in self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY]:
+                    self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY].append(peer_id)
+                #else:
 
 
         return peer_id
@@ -73,7 +69,6 @@ class Tracker:
                         self.lock.acquire()
                         peer_id = self.handle_advertise_message(payload)
                         self.lock.release()
-                        #print(self.entries)
                         #if tcp need to ack back ??? then ack using the peer_id (source ip and port all there)
                     #create if statements for other types of messages here
                     #if payload[MESSAGE_TYPE] == other request type:
