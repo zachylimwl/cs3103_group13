@@ -87,7 +87,7 @@ class Tracker:
         request[PAYLOAD_PEER_ID_KEY] = id_to_ip_port.get(self.entries[file_name][chunk_id][0]) #get first user in list. Need change
         return request
     
-    def handle_content_query(self, payload):
+    def get_list_of_peers(self, payload):
         request = {}
         file_name = payload[PAYLOAD_FILENAME_KEY]
         if file_name not in self.entries:
