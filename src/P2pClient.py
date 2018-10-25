@@ -3,6 +3,7 @@ import json
 import os
 import hashlib
 from constants import *
+from FileUtilities import *
 
 class P2pClient:
     def __init__(self, host, port):
@@ -20,18 +21,54 @@ class P2pClient:
 
     # Download chunk from peer
     def download_chunk_from_peer(self, file_name, chunk_number, chunk_details):
-        ### IMPLEMENT get key from PC
-        peer_list = chunk_details["CHUNK_OWNERS"]
+        # Check if chunk exist ### IMPLEMENT
+        peer_list = chunk_details[LIST_OF_PEERS_KEY]
         # Uses a random peer for now
         random_peer_index = randint(0, len(peer_list))
         peer = peer_list.get(random_peer_index)
-        peer_ip = ### IMPLEMENT
-        peer_port = ### IMPLEMENT
+        peer_ip = ### IMPLEMENT get from ben
+        peer_port = ### IMPLEMENT get from ben
+        file_chunk_request = create_file_chunk_request(file_name, chunk_number, peer_ip, peer_port)
+        # Retrieve chunk data from peer
+        response = send_to_peer(request, peer_ip, peer_port)
+        save_file_chunk(response, file_name, chunk_number)
+
+    # Used for sending request to peer and retrieving the file chunk
+    def send_to_peer(self, request, peer_ip, peer_port):
+        sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sending_socket.connect((peer_ip, peer_port))
+        sending_socket.sendall(json.dumps(request))
+        # Receive data
+        data = ''
+        while True:
+            recv = sending_socket.recv(1024)
+            if not recv:
+                break
+            data += recv
+        sending_socket.close()
+        return data
+
+    # Saves chunk data into a file after retrieving it from peer
+    def save_file_chunk(response, file_name, chunk_number):
+        directory = os.path.join(self.directory, file_name + '_' + str(chunk_number) + CUSTOM_CHUNK_EXTENSION)
+        with open(directory, 'wb') as chunk_file:
+            chunk_file.write(response)
+        ### IMPLEMENT check checksum of downloaded chunk
+
 
     # Creates the message request for requesting a file chunk from another peer
-    def create_file_chunk_request(self, file_name, chunk_number, peer_ip, peer_port):
+    # Format:
+    # {
+    #   MESSAGE_TYPE : PEER_REQUEST_TYPE_CHUNK_DOWNLOAD
+    #   FILE_NAME : file_name
+    #   PEER_REQUEST_CHUNK_NUMBER = chunk_number
+    # }
+    def create_file_chunk_request(self, file_name, chunk_number):
         request = {}
-        request[MESSAGE_TYPE] = P2P_SERVER_REQUEST_TYPE_DOWNLOAD_CODE
+        request[MESSAGE_TYPE] = PEER_REQUEST_TYPE_CHUNK_DOWNLOAD
+        request[FILE_NAME] = file_name
+        request[PEER_REQUEST_TYPE_CHUNK_NUMBER] = chunk_number
+        return request
 
     def entry(self):
         request = {}
@@ -56,11 +93,13 @@ class P2pClient:
         if response[MESSAGE_TYPE] == TRACKER_RESPONSE_TYPE_ERROR:
             print("File does not exist.")
             return
-        chunk_list = response[file_name]
+        chunk_keys = list(response[file_name].keys())
         # Send to P2P server to request for download
-        for chunk in chunk_list:
-            ### IMPLEMENT download each chunk
-        ### IMPLEMENT piecing together each file
+        for chunk_key in chunk_keys:
+            download_chunk_from_peer(self, file_name, chunk_key, response[file_name][chunk_key]):
+            ### IMPLEMENT send file for advertising
+        ### Check if chunk is completed
+        combine_chunks(file_name, len(chunk_keys), self.directory)
         
     def list_all(self):
         request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_LIST_ALL}
