@@ -73,7 +73,14 @@ class P2pClient:
         request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT,
                    PAYLOAD_FILENAME_KEY: file_name,
                    }
-        self.send_to_tracker(request)
+        response = self.send_to_tracker(request)
+
+        if response[MESSAGE_TYPE] == TRACKER_FILE_NOT_FOUND:
+            print("File is not found on server.")
+        elif response[MESSAGE_TYPE] == TRACKER_PEERS_NOT_FOUND:
+            print("No peers are available for this file")
+        else:
+            print("File is ready for download")
 
     def download_file(self, file_name):
         # Queries for list of chunks and owner from tracker
