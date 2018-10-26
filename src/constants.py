@@ -36,12 +36,13 @@ LIST_OF_PEERS_KEY = "list_of_peers"
 
 #Success message type
 TRACKER_DOWNLOAD_AVAILABLE = "download_available"
+TRACKER_ALL_CHUNKS_DOWNLOADED = "all_chunks_downloaded"
 TRACKER_PEERS_AVAILABLE = "peers_available"
 
 #Error message type
 TRACKER_FILE_NOT_FOUND = "file_not_found"
 TRACKER_PEERS_NOT_FOUND = "peers_not_found"
-TRACKER_CHUNK_NOT_FOUND = "chunk_not_found"
+TRACKER_CHUNKS_NOT_FOUND = "chunks_not_found"
 
 
 OPENING_MESSAGE = """

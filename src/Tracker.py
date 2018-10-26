@@ -69,22 +69,34 @@ class Tracker:
     def handle_content_query(self, payload):
         request = {}
         file_name = payload[PAYLOAD_FILENAME_KEY]
-        chunk_id = payload[PAYLOAD_FILE_CHUNK_ID_KEY]
-        peer_id = 
+        list_of_peer_chunks = payload[PAYLOAD_LIST_OF_CHUNKS_KEY]
         if file_name not in self.entries:
             request[MESSAGE_TYPE] = TRACKER_FILE_NOT_FOUND
             return request
 
-        if chunk_id not in self.entries[file_name]:
-            request[MESSAGE_TYPE] = TRACKER_CHUNK_NOT_FOUND
+        # If user has all chunks
+        if len(self.entries[file_name]) == len(list_of_peer_chunks)
+            request[MESSAGE_TYPE] = TRACKER_ALL_CHUNKS_DOWNLOADED
             return request
+
+        list_of_chunks_needed = []
+        for chunk in self.entries[file_name]:
+            if chunk not in list_of_peer_chunks:
+                list_of_chunks_needed.append(chunk)
         
-        if self.entries[file_name][chunk_id].empty():
+        # No chunks of file could be found
+        if list_of_chunks_needed.empty():
+            request[MESSAGE_TYPE] = TRACKER_CHUNKS_NOT_FOUND
+            return request
+
+        # Uses the first chunk. Need change to priority based (Priority Queue)
+        chunk_id = list_of_chunks_needed[0]
+        if chunk_id.empty():
             request[MESSAGE_TYPE] = TRACKER_PEERS_NOT_FOUND
             return request
         
         request[MESSAGE_TYPE] = TRACKER_DOWNLOAD_AVAILABLE
-        request[PAYLOAD_PEER_ID_KEY] = id_to_ip_port.get(self.entries[file_name][chunk_id][0]) #get first user in list. Need change
+        request[PAYLOAD_PEER_ID_KEY] = id_to_ip_port.get(self.entries[file_name][chunk_id][0]) # Get first user in list. Need change
         return request
     
     def get_list_of_peers(self, payload):
