@@ -50,7 +50,9 @@ class Tracker:
                     self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY].append(peer_id)
                 #else:
 
-        return peer_id
+        response = {MESSAGE_TYPE: TRACKER_RESPONSE_TYPE_ADVERTISE_SUCCESS}
+
+        return response
     
     # Creates the list of chunks for a specific file
     # Format:
@@ -74,7 +76,6 @@ class Tracker:
             response[MESSAGE_TYPE] = TRACKER_RESPONSE_TYPE_SUCCESS_QUERY_CHUNK_LIST
             response[file_name] = self.entries[file_name]
             return response
-            
 
     def handle_list_all_available_files_message(self):
         all_available_files = list(self.entries.keys()) if len(self.entries.keys()) else []
@@ -84,13 +85,32 @@ class Tracker:
 
         return response
 
+    def handle_exit_message(self, addr):
+        temp = addr[0] + ":" + str(addr[1])
+        files_to_delete = []
+
+        for file_name, chunks in self.entries.items():
+            for chunk, details in chunks.items():
+                if chunk == PAYLOAD_NUMBER_OF_CHUNKS_KEY:
+                    continue
+                details[LIST_OF_PEERS_KEY].remove(temp)
+                if len(details[LIST_OF_PEERS_KEY]) == 0 and file_name not in files_to_delete:
+                    files_to_delete.append(file_name)
+
+        for f in files_to_delete:
+            self.entries.pop(f)
+
+        response = {MESSAGE_TYPE: TRACKER_RESPONSE_TYPE_EXIT}
+
+        return response
+
     def listen_for_new_client(self):
         self.socket.listen()
         while True:
             client, addr = self.socket.accept()
-            threading.Thread(target=self.listen_to_client, args=(client,)).start()
+            threading.Thread(target=self.listen_to_client, args=(client, addr)).start()
 
-    def listen_to_client(self, client):
+    def listen_to_client(self, client, addr):
         response = {}
         while True:
             try:
@@ -99,24 +119,20 @@ class Tracker:
                     payload = json.loads(data)
                     self.lock.acquire()
                     if payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_ADVERTISE:
-                        peer_id = self.handle_advertise_message(payload)
-                        print(self.entries)
-                        #if tcp need to ack back ??? then ack using the peer_id (source ip and port all there)
+                        response = self.handle_advertise_message(payload)
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_QUERY_CHUNKS:
-                        # Sends list of chunks and owners back to peer
-                        chunk_list = self.create_chunk_list(payload[FILE_NAME])
-                        client.sendall(json.dumps(chunk_list).encode())
+                        response = self.create_chunk_list(payload[FILE_NAME])
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_LIST_ALL_AVAILABLE_FILES:
                         response = self.handle_list_all_available_files_message()
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_EXIT:
-                        pass
+                        response = self.handle_exit_message(addr)
                     else:
-                        pass
+                        response = {MESSAGE_TYPE: TRACKER_RESPONSE_TYPE_ERROR_NO_SUCH_MESSAGE_TYPE}
                     self.lock.release()
                 client.sendall(json.dumps(response).encode())
             except Exception as e:
                 client.close()
-                print(e)
+                break
 
 
 def main():
