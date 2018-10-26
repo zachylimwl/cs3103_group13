@@ -15,7 +15,6 @@ class Tracker:
         self.file_owners = {} #for query 2: asking for files owners
         self.chunk_details = {}
         self.entries = {}
-
         self.peer_id_list = []
 
 
@@ -41,16 +40,19 @@ class Tracker:
                 chunk_num = ch[0]
                 checksum = ch[1]
 
+                if fileName not in self.entries:
+                    self.entries[fileName] = {}
                 #if chunk number not in the entries  
-                if chunk_num not in self.entries[file_name]:
-                    self.entries[file_name][chunk_num] = {}
-                    self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY] = []
-                    self.entries[file_name][chunk_num][PAYLOAD_CHECKSUM_KEY] = checksum
-                    self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY].append(peer_id)
+                if chunk_num not in self.entries[fileName]:
+                    self.entries[fileName][chunk_num] = {}
+                    self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY] = []
+                    self.entries[fileName][chunk_num][PAYLOAD_CHECKSUM_KEY] = checksum
+                    self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY].append(peer_id)
                 #if the chunk's file is inside, but the peer is not inside
-                elif peer_id not in self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY]:
-                    self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY].append(peer_id)
+                elif peer_id not in self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY]:
+                    self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY].append(peer_id)
                 #else:
+                # self.chunk_details[file_name][peer_id] = list(set(self.chunk_details[file_name][peer_id] + chunk_from_peer[PAYLOAD_LIST_OF_CHUNKS_KEY]))
 
         response = {MESSAGE_TYPE: TRACKER_RESPONSE_TYPE_ADVERTISE_SUCCESS}
 
@@ -124,6 +126,12 @@ class Tracker:
             client, addr = self.socket.accept()
             threading.Thread(target=self.listen_to_client, args=(client, addr)).start()
 
+    def displayEntries(self):
+        print()
+        print("CURRENT ENTRIES IN TRACKER...")
+        print()
+        print(self.entries)
+
     def listen_to_client(self, client, addr):
         response = {}
         while True:
@@ -134,6 +142,7 @@ class Tracker:
                     self.lock.acquire()
                     if payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_ADVERTISE:
                         response = self.handle_advertise_message(payload)
+                        self.displayEntries()
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_QUERY_CHUNKS:
                         response = self.create_chunk_list(payload[FILE_NAME])
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_LIST_ALL_AVAILABLE_FILES:
