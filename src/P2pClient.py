@@ -6,11 +6,12 @@ from constants import *
 
 
 class P2pClient:
-    def __init__(self, host, port):
-        self.trackerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.trackerSocket.connect((host, port))
-        self.host = host    #need determine the ID of the peer. Use host?
-        self.port = port
+    def __init__(self, tracker_host, tracker_port):
+        self.trackerSocketConnection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.trackerSocketConnection.connect((tracker_host, tracker_port))
+        host_port_tuple = self.trackerSocketConnection.getsockname()
+        self.host = host_port_tuple[0]
+        self.port = host_port_tuple[1]
         self.files = []
         self.chunks = []
         #currently set to default file path... 
@@ -65,8 +66,8 @@ class P2pClient:
 
     def send_to_tracker(self, request):
         try:
-            self.trackerSocket.sendall(json.dumps(request).encode())
-            response = json.loads(self.trackerSocket.recv(RECEIVE_SIZE_BYTE))
+            self.trackerSocketConnection.sendall(json.dumps(request).encode())
+            response = json.loads(self.trackerSocketConnection.recv(RECEIVE_SIZE_BYTE))
             return response
         except Exception as e:
             print(e)
