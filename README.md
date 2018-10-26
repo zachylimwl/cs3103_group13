@@ -15,21 +15,21 @@ This is a project done for a NUS School of Computing module, CS3103. Is it a Pee
 
 
 ---
-####FILE CHUNKING MECHANISM
+#### FILE CHUNKING MECHANISM
 Currently, the files to be chunked and "torrented" are in the test_directory folder in this repo  
 
-#####for complete files in the folder  
+##### for complete files in the folder  
 they will be processed to dictionary formatted below:  
 res = {"checksum": checksum_string,  
           "number_of_chunks": 37  
           "file_name": file_name_string}  
 
-#####for chunks  
+##### for chunks  
 naming convention: "file_name"_"chunk_number".chunk
 e.g. script_3.chunk  
 
 ---
-####ADVERTISING  
+#### ADVERTISING  
 method: "advertise_to_tracker  
 send a dictionary over to Tracker  
   
@@ -45,7 +45,7 @@ Informs tracker of files in directory, checksum of each file, owned
 Tracker will maintain a list of such dictionaries (each entry is the information of one peer).  
   
 ---
-####SENDING OF CHUNKS  
+#### SENDING OF CHUNKS  
 depending on the request sent from another peer that contains file_name, chunk_number  
 - read the corresponding bytes from the file,  
 - write to a new file and give it the custom extension .chunk  
