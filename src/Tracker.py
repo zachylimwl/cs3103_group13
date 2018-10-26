@@ -131,7 +131,7 @@ class Tracker:
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_EXIT:
                         pass
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT:
-                        response = handle_content_query(payload)
+                        response = self.handle_content_query(payload)
                         client.sendall(json.dumps(response).encode())
                     else:
                         pass
