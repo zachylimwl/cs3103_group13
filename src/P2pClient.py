@@ -28,7 +28,7 @@ class P2pClient:
         # Uses a random peer for now
         random_peer_index = randint(0, len(peer_list) - 1)
         peer = peer_list[random_peer_index]
-        peer_ip = peer
+        peer_ip = peer.split(":")[0]
         peer_port = P2P_SERVER_PORT
         file_chunk_request = self.create_file_chunk_request(file_name, chunk_number)
         # Retrieve chunk data from peer
