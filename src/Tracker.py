@@ -96,6 +96,8 @@ class Tracker:
         
         request[MESSAGE_TYPE] = TRACKER_DOWNLOAD_AVAILABLE
         request[PAYLOAD_PEER_ID_KEY] = id_to_ip_port.get(self.entries[file_name][chunk_id][0]) # Get first user in list. Need change
+        request[CHUNK_NUMBER_KEY] = chunk_id
+        request[PAYLOAD_FILENAME_KEY] = file_name
         return request
     
     def get_list_of_peers(self, payload):
