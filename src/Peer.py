@@ -28,7 +28,8 @@ def main():
             file_name = input("File name: ")
             client.query_for_content(file_name)
         elif option == P2P_SERVER_REQUEST_TYPE_DOWNLOAD_CODE:
-            pass
+            file_name = input("File Name: ")
+            client.download_file(file_name)
         elif option == TRACKER_REQUEST_TYPE_ADVERTISE_CODE:
             client.advertise()
         elif option == TRACKER_REQUEST_TYPE_EXIT_CODE:

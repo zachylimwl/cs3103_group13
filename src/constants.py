@@ -7,15 +7,21 @@ CHUNK_SIZE = 1024
 CUSTOM_CHUNK_EXTENSION = ".chunk"
 DEFAULT_FILE_DIRECTORY = "../test_directory"
 
-#Message type
 MESSAGE_TYPE = "message_type"
+FILE_NAME = "file_name"
 TRACKER_REQUEST_TYPE_ENTRY = "entry"
 TRACKER_REQUEST_TYPE_ADVERTISE = "advertise"
+TRACKER_REQUEST_TYPE_QUERY_CHUNKS = "query_chunks"
 TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT = "query_for_content"
 TRACKER_REQUEST_TYPE_LIST_ALL_AVAILABLE_FILES = "list_all"
 TRACKER_REQUEST_TYPE_EXIT = "exit"
 
-#Tracker request
+TRACKER_RESPONSE_TYPE_ERROR = "error"
+TRACKER_RESPONSE_TYPE_SUCCESS_QUERY_CHUNK_LIST = "success_chunk_list"
+
+PEER_REQUEST_TYPE_CHUNK_DOWNLOAD = "download_chunk"
+PEER_REQUEST_TYPE_CHUNK_NUMBER = "download_chunk_number"
+
 TRACKER_REQUEST_TYPE_LIST_ALL_AVAILABLE_FILES_CODE = "1"
 TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT_CODE = "2"
 P2P_SERVER_REQUEST_TYPE_DOWNLOAD_CODE = "3"
@@ -25,28 +31,16 @@ TRACKER_REQUEST_TYPE_EXIT_CODE = "5"
 TRACKER_RESPONSE_TYPE_LIST_ALL_AVAILABLE_FILES = 'all_available_files_received'
 LIST_OF_FILES = 'list_of_files'
 
-#Payload
+
 PAYLOAD_CHECKSUM_KEY = "checksum"
 PAYLOAD_FILENAME_KEY = "file_name"
 PAYLOAD_PEER_ID_KEY = "peer_id"
 PAYLOAD_NUMBER_OF_CHUNKS_KEY = "number_of_chunks"
 PAYLOAD_LIST_OF_CHUNKS_KEY = "chunks"
 PAYLOAD_LIST_OF_FILES_KEY = "files"
-PAYLOAD_FILE_CHUNK_ID_KEY = "chunk_id"
 
 CHUNK_NUMBER_KEY = "chunk_number"
 LIST_OF_PEERS_KEY = "list_of_peers"
-
-#Success message type
-TRACKER_DOWNLOAD_AVAILABLE = "download_available"
-TRACKER_ALL_CHUNKS_DOWNLOADED = "all_chunks_downloaded"
-TRACKER_PEERS_AVAILABLE = "peers_available"
-
-#Error message type
-TRACKER_FILE_NOT_FOUND = "file_not_found"
-TRACKER_PEERS_NOT_FOUND = "peers_not_found"
-TRACKER_CHUNKS_NOT_FOUND = "chunks_not_found"
-
 
 OPENING_MESSAGE = """
 ========================================================================

@@ -2,7 +2,6 @@ import socket
 import threading
 from threading import Lock
 import json
-import queue
 
 from constants import *
 
@@ -17,28 +16,16 @@ class Tracker:
         self.chunk_details = {}
         self.entries = {}
 
-        self.ip_port_to_id = {}
-        self.id_to_ip_port = {}
-        self.ip_port_index = 0
-        self.freed_ip_port_indexes = queue.Queue(maxsize=0)
 
     def handle_advertise_message(self, payload):
         peer_id = payload[PAYLOAD_PEER_ID_KEY]
-        if peer_id not in self.ip_port_to_id:
-            if self.freed_ip_port_indexes.empty():
-                self.ip_port_to_id[peer_id] = self.ip_port_index
-                self.id_to_ip_port[self.ip_port_index] = peer_id
-                self.ip_port_index += 1
-            else:
-                index = self.freed_ip_port_indexes.get()
-                self.ip_port_to_id[peer_id] = index
-                self.id_to_ip_port[index] = peer_id
 
         for file_from_peer in payload[PAYLOAD_LIST_OF_FILES_KEY]:
             file_name = file_from_peer[PAYLOAD_FILENAME_KEY]
             if file_name not in self.entries:
                 self.entries[file_name] = {}
-                self.entries[file_name][PAYLOAD_NUMBER_OF_CHUNKS_KEY] = file_from_peer[PAYLOAD_NUMBER_OF_CHUNKS_KEY]
+                # Temporary removal for easier iteration (I think its not really needed /Sherina)
+                # self.entries[file_name][PAYLOAD_NUMBER_OF_CHUNKS_KEY] = file_from_peer[PAYLOAD_NUMBER_OF_CHUNKS_KEY]
             if file_name not in self.file_owners:
                 #create new list for that peer_id
                 self.file_owners[file_name] = [peer_id]
@@ -64,58 +51,30 @@ class Tracker:
                 #else:
 
         return peer_id
-
-    def obtain_single_packet_query(self, payload):
-        request = {}
-        file_name = payload[PAYLOAD_FILENAME_KEY]
-        list_of_peer_chunks = payload[PAYLOAD_LIST_OF_CHUNKS_KEY]
-        if file_name not in self.entries:
-            request[MESSAGE_TYPE] = TRACKER_FILE_NOT_FOUND
-            return request
-
-        # If user has all chunks
-        if len(self.entries[file_name]) == len(list_of_peer_chunks):
-            request[MESSAGE_TYPE] = TRACKER_ALL_CHUNKS_DOWNLOADED
-            return request
-
-        list_of_chunks_needed = []
-        for chunk in self.entries[file_name]:
-            if chunk not in list_of_peer_chunks:
-                list_of_chunks_needed.append(chunk)
-        
-        # No chunks of file could be found
-        if list_of_chunks_needed.empty():
-            request[MESSAGE_TYPE] = TRACKER_CHUNKS_NOT_FOUND
-            return request
-
-        # Uses the first chunk. Need change to priority based (Priority Queue)
-        chunk_id = list_of_chunks_needed[0]
-        if chunk_id.empty():
-            request[MESSAGE_TYPE] = TRACKER_PEERS_NOT_FOUND
-            return request
-        
-        request[MESSAGE_TYPE] = TRACKER_DOWNLOAD_AVAILABLE
-        request[PAYLOAD_PEER_ID_KEY] = id_to_ip_port.get(self.entries[file_name][chunk_id][0]) # Get first user in list. Need change
-        request[CHUNK_NUMBER_KEY] = chunk_id
-        request[PAYLOAD_FILENAME_KEY] = file_name
-        return request
     
-    def handle_content_query(self, payload):
-        request = {}
-        file_name = payload[PAYLOAD_FILENAME_KEY]
+    # Creates the list of chunks for a specific file
+    # Format:
+    # {
+    #   MESSAGE_TYPE : TRACKER_RESPONSE_TYPE_SUCCESS_QUERY_CHUNK_LIST
+    #   file_name : {
+    #                   CHUNK1 : ([PEER_ID_LIST], CHECKSUM),
+    #                   CHUNK2 : ([PEER_ID_LIST], CHECKSUM),
+    #                   ...  
+    #               }
+    # }
+    def create_chunk_list(self, file_name):
+        response = {}
+        # Checks if file exists
         if file_name not in self.entries:
-            request[MESSAGE_TYPE] = TRACKER_FILE_NOT_FOUND
-            return request
-
-        request[MESSAGE_TYPE] = TRACKER_PEERS_AVAILABLE
-        chunk_peer_list = {}
-        for chunk in self.entries[file_name]:
-            chunk_peer_list.append(chunk)
-            for peer in chunk_peer_list[chunk]:
-                chunk_peer_list[chunk][peer] = id_to_ip_port(chunk_peer_list[chunk][peer]) # Convert id to ip:port
-
-        request[LIST_OF_PEERS_KEY] = chunk_peer_list
-        return request
+            print("File cannot be found in entries.\n")
+            response[MESSAGE_TYPE] = TRACKER_RESPONSE_TYPE_ERROR
+            return response
+        # Adds chunk list to response if file exist
+        else:
+            response[MESSAGE_TYPE] = TRACKER_RESPONSE_TYPE_SUCCESS_QUERY_CHUNK_LIST
+            response[file_name] = self.entries[file_name]
+            return response
+            
 
     def handle_list_all_available_files_message(self):
         all_available_files = list(self.entries.keys()) if len(self.entries.keys()) else []
@@ -141,10 +100,12 @@ class Tracker:
                     self.lock.acquire()
                     if payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_ADVERTISE:
                         peer_id = self.handle_advertise_message(payload)
-                    elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT:
-                        response = self.handle_content_query(payload)
+                        print(self.entries)
                         #if tcp need to ack back ??? then ack using the peer_id (source ip and port all there)
-                    #create if statements for other types of messages here
+                    elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_QUERY_CHUNKS:
+                        # Sends list of chunks and owners back to peer
+                        chunk_list = self.create_chunk_list(payload[FILE_NAME])
+                        client.sendall(json.dumps(chunk_list).encode())
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_LIST_ALL_AVAILABLE_FILES:
                         response = self.handle_list_all_available_files_message()
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_EXIT:
