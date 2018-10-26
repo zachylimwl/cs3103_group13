@@ -31,8 +31,6 @@ def combine_chunks(file_name, total_chunks, directory):
 
 # Saves chunk data into a file after retrieving it from peer
 def save_file_chunk(response, file_name, chunk_number, file_directory):
-    print("RESPONSE")
-    print(response)
     directory = os.path.join(file_directory, file_name + '_' + str(chunk_number) + CUSTOM_CHUNK_EXTENSION)
     with open(directory, 'wb') as chunk_file:
         chunk_file.write(response)

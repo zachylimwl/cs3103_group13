@@ -21,17 +21,17 @@ class P2pServer:
     # Receiving request from other peers to send file
     def listen_to_peer(self, client):
         while True:
-            
-            print("PEER CONNECTED")
             data = json.loads(client.recv(RECEIVE_SIZE_BYTE))
             if data[MESSAGE_TYPE] == PEER_REQUEST_TYPE_CHUNK_DOWNLOAD:
+                print("Peer Connected to P2PServer, sending requested file")
                 file_name = data[FILE_NAME]
                 chunk_number = data[PEER_REQUEST_TYPE_CHUNK_NUMBER]
                 chunk_bytes = self.get_file_chunk_to_send(file_name, chunk_number)
                 client.sendall(chunk_bytes)
                 client.close()
+                break
             
-
+    # Get file_chunk from dir to send to peer
     def get_file_chunk_to_send(self, file_name, chunk_number):
         chunk_bytes = None
         # File exists, read part of the chunk to send

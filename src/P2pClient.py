@@ -22,8 +22,6 @@ class P2pClient:
 
     # Download chunk from peer
     def download_chunk_from_peer(self, file_name, chunk_number, chunk_details):
-        print(chunk_details)
-        # Check if chunk exist ### IMPLEMENT
         peer_list = chunk_details[LIST_OF_PEERS_KEY]
         # Uses a random peer for now
         random_peer_index = randint(0, len(peer_list) - 1)
@@ -33,8 +31,6 @@ class P2pClient:
         file_chunk_request = self.create_file_chunk_request(file_name, chunk_number)
         # Retrieve chunk data from peer
         response = self.send_to_peer(file_chunk_request, peer_ip, peer_port)
-        print("FILE DATA RECEIVED:")
-        print(response)
         save_file_chunk(response, file_name, chunk_number, self.directory)
 
     # Used for sending request to peer and retrieving the file chunk
@@ -78,21 +74,22 @@ class P2pClient:
     def download_file(self, file_name):
         # Queries for list of chunks and owner from tracker
         request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_QUERY_CHUNKS, FILE_NAME: file_name}
-        print(request)
+        print("Requesting list of chunks from Tracker...")
         self.send_to_tracker(request)
         response = self.receive_from_tracker()
-        print(response)
+        print("List of Chunks received from Tracker")
         # Handle any potential file not found
         if response[MESSAGE_TYPE] == TRACKER_RESPONSE_TYPE_ERROR:
-            print("File does not exist.")
+            print("Requested File does not exist.")
             return
         chunk_keys = list(response[file_name].keys())
-        print(chunk_keys)
         # Send to P2P server to request for download
         for chunk_key in chunk_keys:
+            print("Downloading Chunk " + str(chunk_key) + " from peer")
             self.download_chunk_from_peer(file_name, chunk_key, response[file_name][chunk_key])
             ### IMPLEMENT send file for advertising
         ### Check if chunk is completed
+        print("Combining all chunks")
         combine_chunks(file_name, len(chunk_keys), self.directory)
         
     def list_all(self):
