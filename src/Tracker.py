@@ -24,7 +24,8 @@ class Tracker:
             file_name = file_from_peer[PAYLOAD_FILENAME_KEY]
             if file_name not in self.entries:
                 self.entries[file_name] = {}
-                self.entries[file_name][PAYLOAD_NUMBER_OF_CHUNKS_KEY] = file_from_peer[PAYLOAD_NUMBER_OF_CHUNKS_KEY]
+                # Temporary removal for easier iteration
+                # self.entries[file_name][PAYLOAD_NUMBER_OF_CHUNKS_KEY] = file_from_peer[PAYLOAD_NUMBER_OF_CHUNKS_KEY]
             if file_name not in self.file_owners:
                 #create new list for that peer_id
                 self.file_owners[file_name] = [peer_id]
@@ -66,6 +67,7 @@ class Tracker:
         response = {}
         # Checks if file exists
         if file_name not in self.entries:
+            print("File cannot be found in entries.\n")
             response[MESSAGE_TYPE] = TRACKER_RESPONSE_TYPE_ERROR
             return response
         # Adds chunk list to response if file exist
@@ -87,16 +89,17 @@ class Tracker:
                 data = client.recv(RECEIVE_SIZE_BYTE)
                 if data:
                     #print(data.decode())
-                    payload = json.loads(data)          
+                    payload = json.loads(data)
                     if payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_ADVERTISE:
                         self.lock.acquire()
                         peer_id = self.handle_advertise_message(payload)
                         self.lock.release()
+                        print(self.entries)
                         #if tcp need to ack back ??? then ack using the peer_id (source ip and port all there)
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_QUERY_CHUNKS:
                         # Sends list of chunks and owners back to peer
-                        chunk_list = create_chunk_list(self, payload[FILE_NAME])
-                        client.sendall(json.dumps(file_chunk_response))
+                        chunk_list = self.create_chunk_list(payload[FILE_NAME])
+                        client.sendall(json.dumps(chunk_list).encode())
                     #create if statements for other types of messages here
                     #if payload[MESSAGE_TYPE] == other request type:
             except Exception as e:
