@@ -16,6 +16,8 @@ class Tracker:
         self.chunk_details = {}
         self.entries = {}
 
+        self.peer_id_list = []
+
 
     def handle_advertise_message(self, payload):
         peer_id = payload[PAYLOAD_PEER_ID_KEY]
@@ -84,6 +86,24 @@ class Tracker:
 
         return response
 
+    def handle_content_query(self, payload):
+        file_name = payload[PAYLOAD_FILENAME_KEY]
+
+        response = {}
+        if file_name not in self.entries:
+            response[MESSAGE_TYPE] = TRACKER_FILE_NOT_FOUND
+            return response
+
+        if self.file_owners[file_name].empty():
+            response[MESSAGE_TYPE] = TRACKER_PEERS_NOT_FOUND
+            return response
+
+        response[MESSAGE_TYPE] = TRACKER_PEERS_AVAILABLE
+        return response
+        
+
+
+
     def listen_for_new_client(self):
         self.socket.listen()
         while True:
@@ -110,6 +130,9 @@ class Tracker:
                         response = self.handle_list_all_available_files_message()
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_EXIT:
                         pass
+                    elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT:
+                        response = handle_content_query(payload)
+                        client.sendall(json.dumps(response).encode())
                     else:
                         pass
                     self.lock.release()
