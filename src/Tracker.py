@@ -108,9 +108,7 @@ class Tracker:
             return request
 
         request[MESSAGE_TYPE] = TRACKER_PEERS_AVAILABLE
-        request[LIST_OF_PEERS_KEY] = []
-        for x in self.entries[file_name]:
-            request[PAYLOAD_LIST_OF_CHUNKS_KEY].append(x)
+        request[LIST_OF_PEERS_KEY] = file_owners
         return request
 
     def handle_list_all_available_files_message(self):
