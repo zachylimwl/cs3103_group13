@@ -37,7 +37,7 @@ def main():
             client.exit()
             client.trackerSocketConnection.close()
             process.terminate()
-            break;
+            break
         else:
             print("You have entered an invalid option.")
 

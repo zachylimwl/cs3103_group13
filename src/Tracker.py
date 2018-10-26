@@ -89,28 +89,25 @@ class Tracker:
 
     def handle_content_query(self, payload):
         file_name = payload[PAYLOAD_FILENAME_KEY]
-
         response = {}
         if file_name not in self.entries:
             response[MESSAGE_TYPE] = TRACKER_FILE_NOT_FOUND
             return response
-
-        if self.file_owners[file_name].empty():
+        if not self.file_owners[file_name]:
             response[MESSAGE_TYPE] = TRACKER_PEERS_NOT_FOUND
             return response
-
         response[MESSAGE_TYPE] = TRACKER_PEERS_AVAILABLE
         return response
 
     def handle_exit_message(self, addr):
-        id = addr[0]
+        ip = addr[0]
         files_to_delete = []
 
         for file_name, chunks in self.entries.items():
             for chunk, details in chunks.items():
                 if chunk == PAYLOAD_NUMBER_OF_CHUNKS_KEY:
                     continue
-                details[LIST_OF_PEERS_KEY].remove(id)
+                details[LIST_OF_PEERS_KEY].remove(ip)
                 if len(details[LIST_OF_PEERS_KEY]) == 0 and file_name not in files_to_delete:
                     files_to_delete.append(file_name)
 

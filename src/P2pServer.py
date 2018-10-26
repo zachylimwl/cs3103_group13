@@ -44,5 +44,4 @@ class P2pServer:
             target_chunk = open_file(create_chunk_file_name(file_name, chunk_number))
             chunk_bytes = target_chunk.read(CHUNK_SIZE)
         return chunk_bytes
-        
-        
+
