@@ -34,8 +34,15 @@ class P2pClient:
         self.send_to_tracker(request)
 
     def list_all(self):
-        request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_LIST_ALL}
-        self.send_to_tracker(request)
+        request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_LIST_ALL_AVAILABLE_FILES}
+
+        response = self.send_to_tracker(request)
+        available_files = response[LIST_OF_FILES]
+
+        print(LIST_ALL_MESSAGE)
+        for f in available_files:
+            print(f)
+        print(END_MESSAGE)
 
     def exit(self):
         request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_EXIT}
@@ -57,14 +64,13 @@ class P2pClient:
         payload[MESSAGE_TYPE] = TRACKER_REQUEST_TYPE_ADVERTISE
         return payload
 
-
     def send_to_tracker(self, request):
         try:
             self.trackerSocketConnection.sendall(json.dumps(request).encode())
+            response = json.loads(self.trackerSocketConnection.recv(RECEIVE_SIZE_BYTE))
+            return response
         except Exception as e:
             print(e)
-        
-
 
     #Change file to a dictionary format
     # res = {"checksum": checksum_string,
