@@ -21,6 +21,7 @@ TRACKER_REQUEST_TYPE_ADVERTISE_CODE = "4"
 TRACKER_REQUEST_TYPE_EXIT_CODE = "5"
 
 TRACKER_RESPONSE_TYPE_LIST_ALL_AVAILABLE_FILES = 'all_available_files_received'
+TRACKER_RESPONSE_TYPE_EXIT = 'client_exited'
 LIST_OF_FILES = 'list_of_files'
 
 
@@ -62,5 +63,14 @@ LIST_ALL_MESSAGE = """
 These are the available files for download:
 """
 
+NO_FILES_MESSAGE = """
+-------------------------------------------
+There are currently no files available for download
+"""
+
+EXIT_MESSAGE = "Thank you and see you again."
+
 END_MESSAGE = "-------------------------------------------"
+
+
 

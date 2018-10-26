@@ -39,15 +39,23 @@ class P2pClient:
         response = self.send_to_tracker(request)
         available_files = response[LIST_OF_FILES]
 
-        print(LIST_ALL_MESSAGE)
-        for f in available_files:
-            print(f)
-        print(END_MESSAGE)
+        if available_files:
+            print(LIST_ALL_MESSAGE)
+            for f in available_files:
+                print(f)
+            print(END_MESSAGE)
+        else:
+            print(NO_FILES_MESSAGE)
+            print(END_MESSAGE)
 
     def exit(self):
         request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_EXIT}
-        self.send_to_tracker(request)
-    
+        response = self.send_to_tracker(request)
+
+        if response[MESSAGE_TYPE] == TRACKER_RESPONSE_TYPE_EXIT:
+            print(EXIT_MESSAGE)
+            print(END_MESSAGE)
+
 
     #Create the message payload for advertise to be sent to the Tracker
     # payload = {

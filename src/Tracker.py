@@ -16,7 +16,6 @@ class Tracker:
         self.chunk_details = {}
         self.entries = {}
 
-
     def handle_advertise_message(self, payload):
         peer_id = payload[PAYLOAD_PEER_ID_KEY]
 
@@ -59,14 +58,35 @@ class Tracker:
 
         return response
 
+    def handle_exit_message(self, client, addr):
+        temp = addr[0] + ":" + str(addr[1])
+        files_to_delete = []
+
+        for file_name, chunks in self.entries.items():
+            for chunk, details in chunks.items():
+                if chunk == PAYLOAD_NUMBER_OF_CHUNKS_KEY:
+                    continue
+                details[LIST_OF_PEERS_KEY].remove(temp)
+                if len(details[LIST_OF_PEERS_KEY]) == 0 and file_name not in files_to_delete:
+                    files_to_delete.append(file_name)
+
+        for f in files_to_delete:
+            self.entries.pop(f)
+
+        response = {MESSAGE_TYPE: TRACKER_RESPONSE_TYPE_EXIT}
+
+        return response
+
     def listen_for_new_client(self):
         self.socket.listen()
         while True:
             client, addr = self.socket.accept()
-            threading.Thread(target=self.listen_to_client, args=(client,)).start()
+            print(addr)
+            threading.Thread(target=self.listen_to_client, args=(client, addr)).start()
 
-    def listen_to_client(self, client):
+    def listen_to_client(self, client, addr):
         response = {}
+
         while True:
             try:
                 data = client.recv(RECEIVE_SIZE_BYTE)
@@ -78,14 +98,12 @@ class Tracker:
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_LIST_ALL_AVAILABLE_FILES:
                         response = self.handle_list_all_available_files_message()
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_EXIT:
-                        pass
-                    else:
-                        pass
+                        response = self.handle_exit_message(client, addr)
                     self.lock.release()
                 client.sendall(json.dumps(response).encode())
             except Exception as e:
                 client.close()
-                print(e)
+                break
 
 
 def main():
