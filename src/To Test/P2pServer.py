@@ -22,6 +22,8 @@ class P2pServer:
     def listen_to_peer(self, client):
         while True:
             data = json.loads(client.recv(RECEIVE_SIZE_BYTE))
+            print("Receive from peer")
+            print(data)
             if data[MESSAGE_TYPE] == PEER_REQUEST_TYPE_CHUNK_DOWNLOAD:
                 print("Peer Connected to P2PServer, sending requested file")
                 file_name = data[FILE_NAME]

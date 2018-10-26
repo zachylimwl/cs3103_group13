@@ -50,7 +50,6 @@ class Tracker:
                     self.entries[file_name][chunk_num][LIST_OF_PEERS_KEY].append(peer_id)
                 #else:
 
-
         return peer_id
     
     # Creates the list of chunks for a specific file
@@ -77,6 +76,14 @@ class Tracker:
             return response
             
 
+    def handle_list_all_available_files_message(self):
+        all_available_files = list(self.entries.keys()) if len(self.entries.keys()) else []
+
+        response = {MESSAGE_TYPE: TRACKER_RESPONSE_TYPE_LIST_ALL_AVAILABLE_FILES,
+                    LIST_OF_FILES: all_available_files}
+
+        return response
+
     def listen_for_new_client(self):
         self.socket.listen()
         while True:
@@ -84,24 +91,29 @@ class Tracker:
             threading.Thread(target=self.listen_to_client, args=(client,)).start()
 
     def listen_to_client(self, client):
+        response = {}
         while True:
             try:
                 data = client.recv(RECEIVE_SIZE_BYTE)
                 if data:
-                    #print(data.decode())
                     payload = json.loads(data)
+                    self.lock.acquire()
                     if payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_ADVERTISE:
-                        self.lock.acquire()
                         peer_id = self.handle_advertise_message(payload)
-                        self.lock.release()
                         print(self.entries)
                         #if tcp need to ack back ??? then ack using the peer_id (source ip and port all there)
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_QUERY_CHUNKS:
                         # Sends list of chunks and owners back to peer
                         chunk_list = self.create_chunk_list(payload[FILE_NAME])
                         client.sendall(json.dumps(chunk_list).encode())
-                    #create if statements for other types of messages here
-                    #if payload[MESSAGE_TYPE] == other request type:
+                    elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_LIST_ALL_AVAILABLE_FILES:
+                        response = self.handle_list_all_available_files_message()
+                    elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_EXIT:
+                        pass
+                    else:
+                        pass
+                    self.lock.release()
+                client.sendall(json.dumps(response).encode())
             except Exception as e:
                 client.close()
                 print(e)

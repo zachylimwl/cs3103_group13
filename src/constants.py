@@ -13,7 +13,7 @@ TRACKER_REQUEST_TYPE_ENTRY = "entry"
 TRACKER_REQUEST_TYPE_ADVERTISE = "advertise"
 TRACKER_REQUEST_TYPE_QUERY_CHUNKS = "query_chunks"
 TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT = "query_for_content"
-TRACKER_REQUEST_TYPE_LIST_ALL = "list_all"
+TRACKER_REQUEST_TYPE_LIST_ALL_AVAILABLE_FILES = "list_all"
 TRACKER_REQUEST_TYPE_EXIT = "exit"
 
 TRACKER_RESPONSE_TYPE_ERROR = "error"
@@ -22,11 +22,15 @@ TRACKER_RESPONSE_TYPE_SUCCESS_QUERY_CHUNK_LIST = "success_chunk_list"
 PEER_REQUEST_TYPE_CHUNK_DOWNLOAD = "download_chunk"
 PEER_REQUEST_TYPE_CHUNK_NUMBER = "download_chunk_number"
 
-TRACKER_REQUEST_TYPE_LIST_ALL_CODE = "1"
+TRACKER_REQUEST_TYPE_LIST_ALL_AVAILABLE_FILES_CODE = "1"
 TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT_CODE = "2"
 P2P_SERVER_REQUEST_TYPE_DOWNLOAD_CODE = "3"
 TRACKER_REQUEST_TYPE_ADVERTISE_CODE = "4"
 TRACKER_REQUEST_TYPE_EXIT_CODE = "5"
+
+TRACKER_RESPONSE_TYPE_LIST_ALL_AVAILABLE_FILES = 'all_available_files_received'
+LIST_OF_FILES = 'list_of_files'
+
 
 PAYLOAD_CHECKSUM_KEY = "checksum"
 PAYLOAD_FILENAME_KEY = "file_name"
@@ -60,3 +64,11 @@ Enter: 4
 5. Exit the p2p client
 Enter: 5
 """
+
+LIST_ALL_MESSAGE = """
+-------------------------------------------
+These are the available files for download:
+"""
+
+END_MESSAGE = "-------------------------------------------"
+

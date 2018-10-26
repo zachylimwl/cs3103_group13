@@ -7,11 +7,12 @@ from constants import *
 from FileUtilities import *
 
 class P2pClient:
-    def __init__(self, host, port):
-        self.trackerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.trackerSocket.connect((host, port))
-        self.host = host    #need determine the ID of the peer. Use host?
-        self.port = port
+    def __init__(self, tracker_host, tracker_port):
+        self.trackerSocketConnection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.trackerSocketConnection.connect((tracker_host, tracker_port))
+        host_port_tuple = self.trackerSocketConnection.getsockname()
+        self.host = host_port_tuple[0]
+        self.port = host_port_tuple[1]
         self.files = []
         self.chunks = []
         #currently set to default file path... 
@@ -75,8 +76,7 @@ class P2pClient:
         # Queries for list of chunks and owner from tracker
         request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_QUERY_CHUNKS, FILE_NAME: file_name}
         print("Requesting list of chunks from Tracker...")
-        self.send_to_tracker(request)
-        response = self.receive_from_tracker()
+        response = self.send_to_tracker(request)
         print("List of Chunks received from Tracker")
         # Handle any potential file not found
         if response[MESSAGE_TYPE] == TRACKER_RESPONSE_TYPE_ERROR:
@@ -93,8 +93,15 @@ class P2pClient:
         combine_chunks(file_name, len(chunk_keys), self.directory)
         
     def list_all(self):
-        request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_LIST_ALL}
-        self.send_to_tracker(request)
+        request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_LIST_ALL_AVAILABLE_FILES}
+
+        response = self.send_to_tracker(request)
+        available_files = response[LIST_OF_FILES]
+
+        print(LIST_ALL_MESSAGE)
+        for f in available_files:
+            print(f)
+        print(END_MESSAGE)
 
     def exit(self):
         request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_EXIT}
@@ -116,22 +123,13 @@ class P2pClient:
         payload[MESSAGE_TYPE] = TRACKER_REQUEST_TYPE_ADVERTISE
         return payload
 
-
     def send_to_tracker(self, request):
         try:
-            self.trackerSocket.sendall(json.dumps(request).encode())
+            self.trackerSocketConnection.sendall(json.dumps(request).encode())
+            response = json.loads(self.trackerSocketConnection.recv(RECEIVE_SIZE_BYTE))
+            return response
         except Exception as e:
             print(e)
-
-    # Receives a response from the tracker
-    def receive_from_tracker(self):
-        try:
-            data = self.trackerSocket.recv(RECEIVE_SIZE_BYTE)
-            received_data = json.loads(data)
-            return received_data
-        except Exception as e:
-            print(e)
-        
 
     #Change file to a dictionary format
     # res = {"checksum": checksum_string,
