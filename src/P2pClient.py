@@ -68,6 +68,7 @@ class P2pClient:
         self.process_directory()
         request = self.craft_payload_for_tracker()
         self.send_to_tracker(request)
+        print("Details of files sent to Tracker.")
 
     def query_for_content(self, file_name):
         request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT,
