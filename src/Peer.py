@@ -25,7 +25,8 @@ def main():
         if option == TRACKER_REQUEST_TYPE_LIST_ALL_AVAILABLE_FILES_CODE:
             client.list_all()
         elif option == TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT_CODE:
-            client.query_for_content()
+            file_name = input("File name: ")
+            client.query_for_content(file_name)
         elif option == P2P_SERVER_REQUEST_TYPE_DOWNLOAD_CODE:
             pass
         elif option == TRACKER_REQUEST_TYPE_ADVERTISE_CODE:

@@ -74,7 +74,7 @@ class Tracker:
             return request
 
         # If user has all chunks
-        if len(self.entries[file_name]) == len(list_of_peer_chunks)
+        if len(self.entries[file_name]) == len(list_of_peer_chunks):
             request[MESSAGE_TYPE] = TRACKER_ALL_CHUNKS_DOWNLOADED
             return request
 
@@ -136,7 +136,7 @@ class Tracker:
                     if payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_ADVERTISE:
                         peer_id = self.handle_advertise_message(payload)
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT:
-                        response = self.handle_content_query()
+                        response = self.handle_content_query(payload)
                         #if tcp need to ack back ??? then ack using the peer_id (source ip and port all there)
                     #create if statements for other types of messages here
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_LIST_ALL_AVAILABLE_FILES:
