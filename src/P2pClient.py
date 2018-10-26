@@ -108,8 +108,12 @@ class P2pClient:
 
     def exit(self):
         request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_EXIT}
-        self.send_to_tracker(request)
-    
+
+        response = self.send_to_tracker(request)
+
+        if response[MESSAGE_TYPE] == TRACKER_RESPONSE_TYPE_EXIT:
+            print(EXIT_MESSAGE)
+            print(END_MESSAGE)
 
     #Create the message payload for advertise to be sent to the Tracker
     # payload = {

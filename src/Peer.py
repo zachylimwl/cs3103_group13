@@ -1,4 +1,4 @@
-import threading
+from multiprocessing import Process
 
 from P2pClient import P2pClient
 from P2pServer import P2pServer
@@ -15,7 +15,8 @@ def main():
     client.entry()
 
     # New Thread for peers to download from client
-    threading.Thread(target=listen_for_peers).start()
+    process = Process(target=listen_for_peers)
+    process.start()
 
     print(OPENING_MESSAGE)
 
@@ -34,6 +35,9 @@ def main():
             client.advertise()
         elif option == TRACKER_REQUEST_TYPE_EXIT_CODE:
             client.exit()
+            client.trackerSocketConnection.close()
+            process.terminate()
+            break;
         else:
             print("You have entered an invalid option.")
 
