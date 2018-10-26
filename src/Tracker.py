@@ -65,7 +65,7 @@ class Tracker:
 
         return peer_id
 
-    def handle_content_query(self, payload):
+    def obtain_single_packet_query(self, payload):
         request = {}
         file_name = payload[PAYLOAD_FILENAME_KEY]
         list_of_peer_chunks = payload[PAYLOAD_LIST_OF_CHUNKS_KEY]
@@ -100,7 +100,7 @@ class Tracker:
         request[PAYLOAD_FILENAME_KEY] = file_name
         return request
     
-    def get_list_of_peers(self, payload):
+    def handle_content_query(self, payload):
         request = {}
         file_name = payload[PAYLOAD_FILENAME_KEY]
         if file_name not in self.entries:
@@ -108,7 +108,13 @@ class Tracker:
             return request
 
         request[MESSAGE_TYPE] = TRACKER_PEERS_AVAILABLE
-        request[LIST_OF_PEERS_KEY] = file_owners
+        chunk_peer_list = {}
+        for chunk in self.entries[file_name]:
+            chunk_peer_list.append(chunk)
+            for peer in chunk_peer_list[chunk]:
+                chunk_peer_list[chunk][peer] = id_to_ip_port(chunk_peer_list[chunk][peer]) # Convert id to ip:port
+
+        request[LIST_OF_PEERS_KEY] = chunk_peer_list
         return request
 
     def handle_list_all_available_files_message(self):
