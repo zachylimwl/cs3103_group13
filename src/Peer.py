@@ -22,7 +22,7 @@ def main():
     while True:
         option = input("Input: ")
 
-        if option == TRACKER_REQUEST_TYPE_LIST_ALL_CODE:
+        if option == TRACKER_REQUEST_TYPE_LIST_ALL_AVAILABLE_FILES_CODE:
             client.list_all()
         elif option == TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT_CODE:
             client.query_for_content()
