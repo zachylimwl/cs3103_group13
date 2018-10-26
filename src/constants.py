@@ -17,7 +17,10 @@ TRACKER_REQUEST_TYPE_LIST_ALL_AVAILABLE_FILES = "list_all"
 TRACKER_REQUEST_TYPE_EXIT = "exit"
 
 TRACKER_RESPONSE_TYPE_ERROR = "error"
+TRACKER_RESPONSE_TYPE_ERROR_NO_SUCH_MESSAGE_TYPE = "no_such_message_type"
 TRACKER_RESPONSE_TYPE_SUCCESS_QUERY_CHUNK_LIST = "success_chunk_list"
+TRACKER_RESPONSE_TYPE_EXIT = "success_exit"
+TRACKER_RESPONSE_TYPE_ADVERTISE_SUCCESS = "success_advertise"
 
 PEER_REQUEST_TYPE_CHUNK_DOWNLOAD = "download_chunk"
 PEER_REQUEST_TYPE_CHUNK_NUMBER = "download_chunk_number"
@@ -69,6 +72,8 @@ LIST_ALL_MESSAGE = """
 -------------------------------------------
 These are the available files for download:
 """
+
+EXIT_MESSAGE = "Thank you and see you again."
 
 END_MESSAGE = "-------------------------------------------"
 
