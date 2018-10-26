@@ -30,11 +30,10 @@ class P2pClient:
         request = self.craft_payload_for_tracker()
         self.send_to_tracker(request)
 
-    def query_for_content(self, peerId, fileName, fileChunkId):
+    def query_for_content(self, file_name, list_of_peer_chunks):
         request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT,
-                   PAYLOAD_PEER_ID_KEY: peerId,
-                   PAYLOAD_FILENAME_KEY: fileName,
-                   PAYLOAD_FILE_CHUNK_ID_KEY: fileChunkId
+                   PAYLOAD_FILENAME_KEY: file_name,
+                   PAYLOAD_LIST_OF_CHUNKS_KEY: list_of_peer_chunks
                    }
         self.send_to_tracker(request)
 
