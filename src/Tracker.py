@@ -16,6 +16,8 @@ class Tracker:
         self.chunk_details = {}
         self.entries = {}
 
+        self.peer_id_list = []
+
 
     def handle_advertise_message(self, payload):
         peer_id = payload[PAYLOAD_PEER_ID_KEY]
@@ -85,15 +87,30 @@ class Tracker:
 
         return response
 
+    def handle_content_query(self, payload):
+        file_name = payload[PAYLOAD_FILENAME_KEY]
+
+        response = {}
+        if file_name not in self.entries:
+            response[MESSAGE_TYPE] = TRACKER_FILE_NOT_FOUND
+            return response
+
+        if self.file_owners[file_name].empty():
+            response[MESSAGE_TYPE] = TRACKER_PEERS_NOT_FOUND
+            return response
+
+        response[MESSAGE_TYPE] = TRACKER_PEERS_AVAILABLE
+        return response
+
     def handle_exit_message(self, addr):
-        temp = addr[0] + ":" + str(addr[1])
+        id = addr[0]
         files_to_delete = []
 
         for file_name, chunks in self.entries.items():
             for chunk, details in chunks.items():
                 if chunk == PAYLOAD_NUMBER_OF_CHUNKS_KEY:
                     continue
-                details[LIST_OF_PEERS_KEY].remove(temp)
+                details[LIST_OF_PEERS_KEY].remove(id)
                 if len(details[LIST_OF_PEERS_KEY]) == 0 and file_name not in files_to_delete:
                     files_to_delete.append(file_name)
 
@@ -124,6 +141,8 @@ class Tracker:
                         response = self.create_chunk_list(payload[FILE_NAME])
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_LIST_ALL_AVAILABLE_FILES:
                         response = self.handle_list_all_available_files_message()
+                    elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT:
+                        response = self.handle_content_query(payload)
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_EXIT:
                         response = self.handle_exit_message(addr)
                     else:

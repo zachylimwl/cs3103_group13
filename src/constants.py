@@ -45,6 +45,13 @@ PAYLOAD_LIST_OF_FILES_KEY = "files"
 CHUNK_NUMBER_KEY = "chunk_number"
 LIST_OF_PEERS_KEY = "list_of_peers"
 
+# Success messages
+TRACKER_PEERS_AVAILABLE = "peers_available"
+
+# Error messages
+TRACKER_FILE_NOT_FOUND = "file_not_found"
+TRACKER_PEERS_NOT_FOUND = "peers_not_found"
+
 OPENING_MESSAGE = """
 ========================================================================
 

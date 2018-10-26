@@ -19,6 +19,7 @@ class P2pClient:
         #should include arg parser with flags e.g. "python Peer.py --dir my_directory_path"
         os.chdir(DEFAULT_FILE_DIRECTORY)
         self.directory = os.getcwd()
+        self.advertise()
         pass
 
     # Download chunk from peer
@@ -68,8 +69,10 @@ class P2pClient:
         request = self.craft_payload_for_tracker()
         self.send_to_tracker(request)
 
-    def query_for_content(self):
-        request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT}
+    def query_for_content(self, file_name):
+        request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT,
+                   PAYLOAD_FILENAME_KEY: file_name,
+                   }
         self.send_to_tracker(request)
 
     def download_file(self, file_name):
