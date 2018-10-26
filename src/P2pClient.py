@@ -19,7 +19,6 @@ class P2pClient:
         #should include arg parser with flags e.g. "python Peer.py --dir my_directory_path"
         os.chdir(DEFAULT_FILE_DIRECTORY)
         self.directory = os.getcwd()
-        self.advertise()
         pass
 
     # Download chunk from peer
@@ -118,14 +117,14 @@ class P2pClient:
 
     #Create the message payload for advertise to be sent to the Tracker
     # payload = {
-    #     "peer_id": source_ip + : + source_port i.e. 127.0.0.1:1880 for example
+    #     "peer_id": source_ip i.e. 127.0.0.1 for example
     #     "files": [{"checksum": "checksum", "num_of_chunks": 1, "filename": "test_c"}, ...],
     #     "chunks": [{"chunks": [1, 2, 3, 4, 5], "filename": "test_b"}, ...]
     #     "message_type": "INFORM_AND_UPDATE",
     # }
     def craft_payload_for_tracker(self):
         payload = {}
-        payload[PAYLOAD_PEER_ID_KEY] = str(self.host) + ":" + str(self.port)
+        payload[PAYLOAD_PEER_ID_KEY] = str(self.host)
         payload[PAYLOAD_LIST_OF_FILES_KEY] = self.files
         payload[PAYLOAD_LIST_OF_CHUNKS_KEY] = self.chunks
         payload[MESSAGE_TYPE] = TRACKER_REQUEST_TYPE_ADVERTISE
