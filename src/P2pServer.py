@@ -41,7 +41,7 @@ class P2pServer:
             chunk_bytes = target_file.read(CHUNK_SIZE)
         # Chunk exist, sends whole chunk
         else:
-            target_chunk = open_file(create_chunk_file_name(file_name, chunk_number))
+            target_chunk = open_file(create_chunk_file_name(file_name, chunk_number), self.directory)
             chunk_bytes = target_chunk.read(CHUNK_SIZE)
         return chunk_bytes
 

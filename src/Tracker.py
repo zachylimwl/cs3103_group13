@@ -72,7 +72,6 @@ class Tracker:
         response = {}
         # Checks if file exists
         if file_name not in self.entries:
-            print("File cannot be found in entries.\n")
             response[MESSAGE_TYPE] = TRACKER_RESPONSE_TYPE_ERROR
             return response
         # Adds chunk list to response if file exist

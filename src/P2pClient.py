@@ -26,17 +26,15 @@ class P2pClient:
         peer_list = chunk_details[LIST_OF_PEERS_KEY]
         # Uses a random peer for now
         random_peer_index = randint(0, len(peer_list) - 1)
-        peer = peer_list[random_peer_index]
-        peer_ip = peer
-        peer_port = P2P_SERVER_PORT
+        peer_ip = peer_list[random_peer_index]
         file_chunk_request = self.create_file_chunk_request(file_name, chunk_number)
         # Retrieve chunk data from peer
-        response = self.send_to_peer(file_chunk_request, peer_ip, peer_port)
+        response = self.send_to_peer(file_chunk_request, peer_ip, P2P_SERVER_PORT)
         # Do Checksum check
         file_checksum = chunk_details[PAYLOAD_CHECKSUM_KEY]
-        response_checksum = response.hexdigest()
+        response_checksum = hashlib.md5(response).hexdigest()
         if (file_checksum == response_checksum):
-            print("Downloading Chunk " + str(chunk_key) + " from peer")
+            print("Downloading Chunk " + str(chunk_number) + " from peer")
             save_file_chunk(response, file_name, chunk_number, self.directory)
         else:
             print("Error in downloading chunk " + str(chunk_number) + "of file: " + file_name + ". Please download the file again")
@@ -94,22 +92,25 @@ class P2pClient:
         request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_QUERY_CHUNKS, FILE_NAME: file_name}
         print("Requesting list of chunks from Tracker...")
         response = self.send_to_tracker(request)
+
         # Handle file not found
         if response[MESSAGE_TYPE] == TRACKER_RESPONSE_TYPE_ERROR:
             print("Requested File does not exist.")
             return
+
         # Send to P2P server to request for download
         chunk_keys = list(response[file_name].keys())
         for chunk_key in chunk_keys:
-            if does_file_exist(create_file_chunk_name(file_name, chunk_key)):
+            if does_file_exist(create_chunk_file_name(file_name, chunk_key), self.directory):
                 print("Chunk " + str(chunk_key) + "already exists. Skipping download")
             else:
                 self.download_chunk_from_peer(file_name, chunk_key, response[file_name][chunk_key])
-            ### IMPLEMENT send file for advertising
+                ### IMPLEMENT send file for advertising
+        
         # Check if all chunks are downloaded
         for chunk_key in chunk_keys:
-            if not does_file_exist(create_file_chunk_name(file_name, chunk_key)):
-                print("Chunk " + str(chunk_key) " cannot be found. Please download the file again.")
+            if not does_file_exist(create_chunk_file_name(file_name, chunk_key), self.directory):
+                print("Chunk " + str(chunk_key) + " cannot be found. Please download the file again.")
                 return
         print("Combining all chunks")
         combine_chunks(file_name, len(chunk_keys), self.directory)
