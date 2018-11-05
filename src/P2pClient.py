@@ -192,6 +192,28 @@ class P2pClient:
             res.append({PAYLOAD_FILENAME_KEY: file_name, PAYLOAD_LIST_OF_CHUNKS_KEY: list_of_chunks})
         return res
 
+    def chunks_from_whole_file(self):
+        for f in self.files:
+            dic = {}
+            #split files into chunks, make checksum, add to self.chunks
+            number_of_chunks = f[PAYLOAD_NUMBER_OF_CHUNKS_KEY]
+            chunk_numbers = range(number_of_chunks)
+            file_name = f[PAYLOAD_FILENAME_KEY]
+            dic[PAYLOAD_FILENAME_KEY] = file_name
+            dic[PAYLOAD_LIST_OF_CHUNKS_KEY] = []
+            full_path = os.path.join(self.directory, file_name)
+            with open(full_path, "rb") as chunk_file:
+                for i in chunk_numbers:
+                    #seek the chunk 
+                    chunk_file.seek(i * CHUNK_SIZE)
+                    chunk_file_bytes = chunk_file.read(CHUNK_SIZE)
+                    #checksum
+                    checksum = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
+                    #put this in the dic
+                    dic[PAYLOAD_LIST_OF_CHUNKS_KEY].append((i+1, checksum))
+
+            
+            self.chunks.append(dic)
     #Process the directory
     #sets information in self.files, and self.chunks
     def process_directory(self):
@@ -210,4 +232,4 @@ class P2pClient:
         #format the files and chunks to our standard, then put in self
         self.files = [self.format_whole_file(j) for j in files]
         self.chunks = self.format_chunk(chunks)
-    
+        self.chunks_from_whole_file()
