@@ -2,6 +2,7 @@ import socket
 import json
 import os
 import hashlib
+import stun
 from random import randint
 from constants import *
 from FileUtilities import *
@@ -19,6 +20,9 @@ class P2pClient:
         #should include arg parser with flags e.g. "python Peer.py --dir my_directory_path"
         os.chdir(DEFAULT_FILE_DIRECTORY)
         self.directory = os.getcwd()
+        self.external_ip = None
+        self.external_port = None
+        self.is_hole_punching_enabled = False
         pass
 
     # Download chunk from peer
@@ -82,6 +86,17 @@ class P2pClient:
         else:
             print("File is ready for download")
 
+    def hole_punching(self):
+        print("Enabling client hole-punching...")
+        nat_type, external_ip, external_port = stun.get_ip_info("0.0.0.0", 54230)
+        if (nat_type == "Symmetric NAT"):
+            print("Symmetric NAT detected and it is NOT supported. Application quitting...")
+            exit()
+        self.external_ip = external_ip
+        self.external_port = external_port
+        self.is_hole_punching_enabled = True
+
+
     def download_file(self, file_name):
         # Queries for list of chunks and owner from tracker
         request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_QUERY_CHUNKS, FILE_NAME: file_name}
@@ -131,7 +146,11 @@ class P2pClient:
     # }
     def craft_payload_for_tracker(self):
         payload = {}
-        payload[PAYLOAD_PEER_ID_KEY] = str(self.host)
+        if (self.is_hole_punching_enabled):
+            payload[PAYLOAD_PEER_ID_KEY] = str(self.external_ip)
+        else:
+            payload[PAYLOAD_PEER_ID_KEY] = str(self.host)
+
         payload[PAYLOAD_LIST_OF_FILES_KEY] = self.files
         payload[PAYLOAD_LIST_OF_CHUNKS_KEY] = self.chunks
         payload[MESSAGE_TYPE] = TRACKER_REQUEST_TYPE_ADVERTISE

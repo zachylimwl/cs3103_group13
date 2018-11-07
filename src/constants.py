@@ -14,6 +14,7 @@ TRACKER_REQUEST_TYPE_ADVERTISE = "advertise"
 TRACKER_REQUEST_TYPE_QUERY_CHUNKS = "query_chunks"
 TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT = "query_for_content"
 TRACKER_REQUEST_TYPE_LIST_ALL_AVAILABLE_FILES = "list_all"
+TRACKER_REQUEST_TYPE_HOLE_PUNCHING = "hole_punching"
 TRACKER_REQUEST_TYPE_EXIT = "exit"
 
 TRACKER_RESPONSE_TYPE_ERROR = "error"
@@ -71,8 +72,11 @@ Enter: 3
 4. Update tracker of your files
 Enter: 4
 
-5. Exit the p2p client
+5. Enable hole-punching (For NAT)
 Enter: 5
+
+6. Exit the p2p client
+Enter: 6
 """
 
 LIST_ALL_MESSAGE = """
