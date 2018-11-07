@@ -95,6 +95,7 @@ class P2pClient:
         self.external_ip = external_ip
         self.external_port = external_port
         self.is_hole_punching_enabled = True
+        print("Your hole-punched ip: " + str(external_ip) + " and port: " + str(external_port))
 
 
     def download_file(self, file_name):
