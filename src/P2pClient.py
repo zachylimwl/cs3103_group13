@@ -2,7 +2,7 @@ import socket
 import json
 import os
 import hashlib
-from pynat import get_ip_info
+from pynat import *
 from random import randint
 from constants import *
 from FileUtilities import *
@@ -32,7 +32,7 @@ class P2pClient:
         random_peer_index = randint(0, len(peer_list) - 1)
         peer = peer_list[random_peer_index]
         peer_ip = peer.split(":")[0]
-        peer_port = P2P_SERVER_PORT
+        peer_port = peer.split(":")[1]
         file_chunk_request = self.create_file_chunk_request(file_name, chunk_number)
         # Retrieve chunk data from peer
         response = self.send_to_peer(file_chunk_request, peer_ip, peer_port)
@@ -92,8 +92,8 @@ class P2pClient:
         if (topology == SYMMETRIC):
             print("Symmetric NAT detected and it is NOT supported. Application quitting...")
             exit()
-        self.external_ip = external_ip
-        self.external_port = external_port
+        self.external_ip = ext_ip
+        self.external_port = ext_port
         self.is_hole_punching_enabled = True
         print("Your hole-punched ip: " + str(ext_ip) + " and port: " + str(ext_port) + " and internal ip: " + str(int_ip))
 
@@ -148,9 +148,9 @@ class P2pClient:
     def craft_payload_for_tracker(self):
         payload = {}
         if (self.is_hole_punching_enabled):
-            payload[PAYLOAD_PEER_ID_KEY] = str(self.external_ip)
+            payload[PAYLOAD_PEER_ID_KEY] = str(self.external_ip + ":" + self.external_port)
         else:
-            payload[PAYLOAD_PEER_ID_KEY] = str(self.host)
+            payload[PAYLOAD_PEER_ID_KEY] = str(self.host + ":" + self.port)
 
         payload[PAYLOAD_LIST_OF_FILES_KEY] = self.files
         payload[PAYLOAD_LIST_OF_CHUNKS_KEY] = self.chunks

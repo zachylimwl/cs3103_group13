@@ -33,7 +33,7 @@ def main():
             client.download_file(file_name)
         elif option == TRACKER_REQUEST_TYPE_ADVERTISE_CODE:
             client.advertise()
-        elif option == TRACKER_REQUEST_TYPE_HOLE_PUNCHING:
+        elif option == TRACKER_REQUEST_TYPE_HOLE_PUNCHING_CODE:
             client.hole_punching()
         elif option == TRACKER_REQUEST_TYPE_EXIT_CODE:
             client.exit()
