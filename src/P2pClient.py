@@ -2,7 +2,7 @@ import socket
 import json
 import os
 import hashlib
-import stun
+from pynat import get_ip_info
 from random import randint
 from constants import *
 from FileUtilities import *
@@ -88,14 +88,14 @@ class P2pClient:
 
     def hole_punching(self):
         print("Enabling client hole-punching...")
-        nat_type, external_ip, external_port = stun.get_ip_info("0.0.0.0", 54230)
-        if (nat_type == "Symmetric NAT"):
+        topology, ext_ip, ext_port, int_ip = get_ip_info(include_internal=True)
+        if (topology == SYMMETRIC):
             print("Symmetric NAT detected and it is NOT supported. Application quitting...")
             exit()
         self.external_ip = external_ip
         self.external_port = external_port
         self.is_hole_punching_enabled = True
-        print("Your hole-punched ip: " + str(external_ip) + " and port: " + str(external_port))
+        print("Your hole-punched ip: " + str(ext_ip) + " and port: " + str(ext_port) + " and internal ip: " + str(int_ip))
 
 
     def download_file(self, file_name):
