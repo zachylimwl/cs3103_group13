@@ -20,10 +20,8 @@ class Tracker:
 
     def handle_advertise_message(self, payload):
         peer_id = payload[PAYLOAD_PEER_ID_KEY]
-        
-        peer_id_priv = payload[PAYLOAD_PEER_ID_PRIVATE_KEY]
-        peer_id_pub = payload[PAYLOAD_PEER_ID_PUBLIC_KEY]
-        peer_id_tuple = (peer_id_priv, peer_id_pub)
+        peer_id_pub = payload[PAYLOAD_PUBLIC_PEER_ID_KEY]
+        peer_id_tuple = (peer_id, peer_id_pub)
         #then change all peer_id to peer_id_tuple
         
         for file_from_peer in payload[PAYLOAD_LIST_OF_FILES_KEY]:
