@@ -26,10 +26,12 @@ class P2pClient:
         peer_list = chunk_details[LIST_OF_PEERS_KEY]
         # Uses a random peer for now
         random_peer_index = randint(0, len(peer_list) - 1)
-        peer_ip = peer_list[random_peer_index]
+        peer_details = peer_list[random_peer_index].split(":")
+        peer_ip = peer_details[0]
+        peer_port = peer_details[1]
         file_chunk_request = self.create_file_chunk_request(file_name, chunk_number)
         # Retrieve chunk data from peer
-        response = self.send_to_peer(file_chunk_request, peer_ip, P2P_SERVER_PORT)
+        response = self.send_to_peer(file_chunk_request, peer_ip, peer_port)
         # Do Checksum check
         file_checksum = chunk_details[PAYLOAD_CHECKSUM_KEY]
         response_checksum = hashlib.md5(response).hexdigest()
