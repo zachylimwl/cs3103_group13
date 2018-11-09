@@ -148,9 +148,9 @@ class P2pClient:
     def craft_payload_for_tracker(self):
         payload = {}
         if (self.is_hole_punching_enabled):
-            payload[PAYLOAD_PEER_ID_KEY] = str(self.external_ip + ":" + self.external_port)
+            payload[PAYLOAD_PEER_ID_KEY] = str(str(self.external_ip) + ":" + str(self.external_port))
         else:
-            payload[PAYLOAD_PEER_ID_KEY] = str(self.host + ":" + self.port)
+            payload[PAYLOAD_PEER_ID_KEY] = str(str(self.host) + ":" + str(self.port))
 
         payload[PAYLOAD_LIST_OF_FILES_KEY] = self.files
         payload[PAYLOAD_LIST_OF_CHUNKS_KEY] = self.chunks
