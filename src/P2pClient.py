@@ -15,9 +15,13 @@ class P2pClient:
         self.port = host_port_tuple[1]
         self.files = []
         self.chunks = []
-        #currently set to default file path... 
-        #should include arg parser with flags e.g. "python Peer.py --dir my_directory_path"
-        os.chdir(DEFAULT_FILE_DIRECTORY)
+        
+        if (os.path.isdir(DEFAULT_FILE_DIRECTORY)):
+            os.chdir(DEFAULT_FILE_DIRECTORY)
+        else:
+            print("\n\nDefault file directory not found in client, and will be created...\n\n")
+            os.mkdir(DEFAULT_FILE_DIRECTORY)
+            os.chdir(DEFAULT_FILE_DIRECTORY)
         self.directory = os.getcwd()
         pass
 
