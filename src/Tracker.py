@@ -20,7 +20,12 @@ class Tracker:
 
     def handle_advertise_message(self, payload):
         peer_id = payload[PAYLOAD_PEER_ID_KEY]
-
+        
+        peer_id_priv = payload[PAYLOAD_PEER_ID_PRIVATE_KEY]
+        peer_id_pub = payload[PAYLOAD_PEER_ID_PUBLIC_KEY]
+        peer_id_tuple = (peer_id_priv, peer_id_pub)
+        #then change all peer_id to peer_id_tuple
+        
         for file_from_peer in payload[PAYLOAD_LIST_OF_FILES_KEY]:
             file_name = file_from_peer[PAYLOAD_FILENAME_KEY]
             if file_name not in self.entries:
@@ -29,9 +34,9 @@ class Tracker:
                 # self.entries[file_name][PAYLOAD_NUMBER_OF_CHUNKS_KEY] = file_from_peer[PAYLOAD_NUMBER_OF_CHUNKS_KEY]
             if file_name not in self.file_owners:
                 #create new list for that peer_id
-                self.file_owners[file_name] = [peer_id]
-            elif peer_id not in self.file_owners[file_name]:
-                self.file_owners[file_name].append(peer_id)
+                self.file_owners[file_name] = [peer_id_tuple]
+            elif peer_id_tuple not in self.file_owners[file_name]:
+                self.file_owners[file_name].append(peer_id_tuple)
 
         for chunks_of_file_from_peer in payload[PAYLOAD_LIST_OF_CHUNKS_KEY]:
             fileName = chunks_of_file_from_peer[PAYLOAD_FILENAME_KEY]
@@ -47,10 +52,10 @@ class Tracker:
                     self.entries[fileName][chunk_num] = {}
                     self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY] = []
                     self.entries[fileName][chunk_num][PAYLOAD_CHECKSUM_KEY] = checksum
-                    self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY].append(peer_id)
+                    self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY].append(peer_id_tuple)
                 #if the chunk's file is inside, but the peer is not inside
-                elif peer_id not in self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY]:
-                    self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY].append(peer_id)
+                elif peer_id_tuple not in self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY]:
+                    self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY].append(peer_id_tuple)
                 #else:
                 # self.chunk_details[file_name][peer_id] = list(set(self.chunk_details[file_name][peer_id] + chunk_from_peer[PAYLOAD_LIST_OF_CHUNKS_KEY]))
 
