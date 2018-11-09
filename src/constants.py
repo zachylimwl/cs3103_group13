@@ -5,7 +5,8 @@ P2P_SERVER_PORT = 65433
 RECEIVE_SIZE_BYTE = 1024
 CHUNK_SIZE = 1024
 CUSTOM_CHUNK_EXTENSION = ".chunk"
-DEFAULT_FILE_DIRECTORY = "../test_directory"
+DEFAULT_FILE_DIRECTORY = "../default_file_directory"
+
 
 MESSAGE_TYPE = "message_type"
 FILE_NAME = "file_name"
