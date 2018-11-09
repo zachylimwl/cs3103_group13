@@ -24,9 +24,6 @@ class P2pClient:
             os.mkdir(DEFAULT_FILE_DIRECTORY)
             os.chdir(DEFAULT_FILE_DIRECTORY)
         self.directory = os.getcwd()
-        self.external_ip = None
-        self.external_port = None
-        self.is_hole_punching_enabled = False
         pass
 
     # Download chunk from peer
@@ -71,9 +68,9 @@ class P2pClient:
         request[MESSAGE_TYPE] = TRACKER_REQUEST_TYPE_ENTRY
         self.send_to_tracker(request)
 
-    def advertise(self):
+    def advertise(self, external_ip_port):
         self.process_directory()
-        request = self.craft_payload_for_tracker()
+        request = self.craft_payload_for_tracker(external_ip_port)
         self.send_to_tracker(request)
         print("Details of files sent to Tracker.")
 
@@ -89,18 +86,6 @@ class P2pClient:
             print("No peers are available for this file")
         else:
             print("File is ready for download")
-
-    def hole_punching(self):
-        print("Enabling client hole-punching...")
-        topology, ext_ip, ext_port, int_ip = get_ip_info(include_internal=True)
-        if (topology == SYMMETRIC):
-            print("Symmetric NAT detected and it is NOT supported. Application quitting...")
-            exit()
-        self.external_ip = ext_ip
-        self.external_port = ext_port
-        self.is_hole_punching_enabled = True
-        print("Your hole-punched ip: " + str(ext_ip) + " and port: " + str(ext_port) + " and internal ip: " + str(int_ip))
-
 
     def download_file(self, file_name):
         # Queries for list of chunks and owner from tracker
@@ -149,13 +134,14 @@ class P2pClient:
     #     "chunks": [{"chunks": [1, 2, 3, 4, 5], "filename": "test_b"}, ...]
     #     "message_type": "INFORM_AND_UPDATE",
     # }
-    def craft_payload_for_tracker(self):
+    def craft_payload_for_tracker(self, external_ip_port):
         payload = {}
-        if (self.is_hole_punching_enabled):
-            payload[PAYLOAD_PEER_ID_KEY] = str(str(self.external_ip) + ":" + str(self.external_port))
+        if (external_ip_port == OPEN or external_ip_port == BLOCKED):
+            payload[PAYLOAD_PUBLIC_PEER_ID_KEY] = None
         else:
-            payload[PAYLOAD_PEER_ID_KEY] = str(str(self.host) + ":" + str(self.port))
-
+            payload[PAYLOAD_PUBLIC_PEER_ID_KEY] = external_ip_port
+        
+        payload[PAYLOAD_PEER_ID_KEY] = str(str(self.host) + ":" + str(self.port))
         payload[PAYLOAD_LIST_OF_FILES_KEY] = self.files
         payload[PAYLOAD_LIST_OF_CHUNKS_KEY] = self.chunks
         payload[MESSAGE_TYPE] = TRACKER_REQUEST_TYPE_ADVERTISE

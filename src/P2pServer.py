@@ -2,15 +2,19 @@ import json
 import os
 import socket
 import threading
+from pynat import *
 
 from constants import *
 from FileUtilities import *
 
 class P2pServer:
+
     def __init__(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind((P2P_SERVER_HOST, P2P_SERVER_PORT))
         self.directory = os.getcwd()
+        self.external_ip = None
+        self.external_port = None
 
     def listen_for_new_peer(self):
         self.socket.listen()
@@ -45,3 +49,22 @@ class P2pServer:
             chunk_bytes = target_chunk.read(CHUNK_SIZE)
         return chunk_bytes
 
+    def hole_punching(self):
+        print("++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        print("Enabling auto client hole-punching. Please wait...")
+        topology, ext_ip, ext_port, int_ip = get_ip_info(include_internal=True)
+        if (topology == SYMMETRIC or topology == UDP_FIREWALL):
+            print("Symmetric NAT detected and it is NOT supported. Application quitting...")
+            exit()
+        elif (topology == OPEN):
+            print("You are not connected to a NAT router. Hence your IP address and port are already public.")
+            return OPEN
+        elif (topology == BLOCKED):
+            print("Hole punching failed due to blocked IP info.")
+            return BLOCKED
+        #remove as not need to store in server?
+        self.external_ip = ext_ip
+        self.external_port = ext_port
+        print("Public IP: " + str(ext_ip) + "\nPublic Port: " + str(ext_port) + "\nPrivate IP: " + str(int_ip))
+        print("++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
+        return str(str(ext_ip) + ":" + str(ext_port))
