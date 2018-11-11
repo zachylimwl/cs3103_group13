@@ -44,7 +44,7 @@ class P2pClient:
             print("Downloading Chunk " + str(chunk_number) + " from peer")
             save_file_chunk(response, file_name, chunk_number, self.directory)
             request = self.create_advertise_chunk_request(file_name, chunk_number, file_checksum)
-            print("Informing Tracker about chunk" + str(chunk_number) " of " + file_name)
+            print("Informing Tracker about chunk" + str(chunk_number) + " of " + file_name)
             self.send_to_tracker(request)
         else:
             print("Error in downloading chunk " + str(chunk_number) + "of file: " + file_name + ". Please download the file again")
