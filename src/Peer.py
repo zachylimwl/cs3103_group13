@@ -23,6 +23,7 @@ def main():
     print(OPENING_MESSAGE)
 
     ext_ip_port = q.get()
+    client.ext_ip_port = ext_ip_port
     while True:
         option = input("Input: ")
 

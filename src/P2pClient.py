@@ -7,6 +7,7 @@ from random import randint
 from constants import *
 from FileUtilities import *
 
+
 class P2pClient:
     def __init__(self, tracker_host, tracker_port):
         self.trackerSocketConnection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -16,6 +17,7 @@ class P2pClient:
         self.port = host_port_tuple[1]
         self.files = []
         self.chunks = []
+        self.ext_ip_port = None
         
         if (os.path.isdir(DEFAULT_FILE_DIRECTORY)):
             os.chdir(DEFAULT_FILE_DIRECTORY)
@@ -119,7 +121,7 @@ class P2pClient:
         print(END_MESSAGE)
 
     def exit(self):
-        request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_EXIT}
+        request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_EXIT, PAYLOAD_PUBLIC_PEER_ID_KEY: self.ext_ip_port}
 
         response = self.send_to_tracker(request)
 
