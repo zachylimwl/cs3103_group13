@@ -2,6 +2,7 @@ import socket
 import json
 import os
 import hashlib
+from pynat import *
 from random import randint
 from constants import *
 from FileUtilities import *
@@ -15,10 +16,17 @@ class P2pClient:
         self.port = host_port_tuple[1]
         self.files = []
         self.chunks = []
-        #currently set to default file path... 
-        #should include arg parser with flags e.g. "python Peer.py --dir my_directory_path"
-        os.chdir(DEFAULT_FILE_DIRECTORY)
+        
+        if (os.path.isdir(DEFAULT_FILE_DIRECTORY)):
+            os.chdir(DEFAULT_FILE_DIRECTORY)
+        else:
+            print("\n\nDefault file directory not found in client, and will be created...\n\n")
+            os.mkdir(DEFAULT_FILE_DIRECTORY)
+            os.chdir(DEFAULT_FILE_DIRECTORY)
         self.directory = os.getcwd()
+        self.external_ip = None
+        self.external_port = None
+        self.is_hole_punching_enabled = False
         pass
 
     # Download chunk from peer
@@ -26,9 +34,9 @@ class P2pClient:
         peer_list = chunk_details[LIST_OF_PEERS_KEY]
         # Uses a random peer for now
         random_peer_index = randint(0, len(peer_list) - 1)
-        peer_details = peer_list[random_peer_index].split(":")
-        peer_ip = peer_details[0]
-        peer_port = peer_details[1]
+        peer = peer_list[random_peer_index]
+        peer_ip = peer.split(":")[0]
+        peer_port = int(peer.split(":")[1])
         file_chunk_request = self.create_file_chunk_request(file_name, chunk_number)
         # Retrieve chunk data from peer
         response = self.send_to_peer(file_chunk_request, peer_ip, peer_port)
@@ -39,17 +47,29 @@ class P2pClient:
             print("Downloading Chunk " + str(chunk_number) + " from peer")
             save_file_chunk(response, file_name, chunk_number, self.directory)
             request = self.create_advertise_chunk_request(file_name, chunk_number, file_checksum)
+            print("Informing Tracker about chunk" + str(chunk_number) " of " + file_name)
             self.send_to_tracker(request)
         else:
             print("Error in downloading chunk " + str(chunk_number) + "of file: " + file_name + ". Please download the file again")
 
+    # Create an advertise message request with the same format as the advertiser
+    # {
+    # 'peer_id': '127.0.0.1:65434', 
+    # 'files': [], 
+    # 'chunks': [{'file_name': 'file2.txt', 'chunks': [('1', '5fc51937c2e9e7f2e5971e2ec8e4f88b')]}], 
+    # 'message_type': 'advertise'
+    # }
     def create_advertise_chunk_request(self, file_name, chunk_number, checksum):
         request = {}
-        request[PAYLOAD_PEER_ID_KEY] = str(self.host)
-        files = [{"checksum": checksum, "num_of_chunks": 1, "filename": file_name}]
-        request[PAYLOAD_LIST_OF_FILES_KEYS] = files
-        chunk_keys = [{"chunks": [chunk_number], "filename": file_name}]
-        request[PAYLOAD_LIST_OF_CHUNK_KEYS] = chunk_keys
+        if (self.is_hole_punching_enabled):
+            request[PAYLOAD_PEER_ID_KEY] = str(str(self.external_ip) + ":" + str(self.external_port))
+        else:
+            request[PAYLOAD_PEER_ID_KEY] = str(str(self.host) + ":" + str(P2P_SERVER_PORT))
+
+        files = []
+        request[PAYLOAD_LIST_OF_FILES_KEY] = files
+        chunk_keys = [{PAYLOAD_LIST_OF_CHUNKS_KEY: [(int(chunk_number), checksum)], PAYLOAD_FILENAME_KEY: file_name}]
+        request[PAYLOAD_LIST_OF_CHUNKS_KEY] = chunk_keys
         request[MESSAGE_TYPE] = TRACKER_REQUEST_TYPE_ADVERTISE
         return request
 
@@ -101,6 +121,18 @@ class P2pClient:
         else:
             print("File is ready for download")
 
+    def hole_punching(self):
+        print("Enabling client hole-punching...")
+        topology, ext_ip, ext_port, int_ip = get_ip_info(include_internal=True)
+        if (topology == SYMMETRIC):
+            print("Symmetric NAT detected and it is NOT supported. Application quitting...")
+            exit()
+        self.external_ip = ext_ip
+        self.external_port = ext_port
+        self.is_hole_punching_enabled = True
+        print("Your hole-punched ip: " + str(ext_ip) + " and port: " + str(ext_port) + " and internal ip: " + str(int_ip))
+
+
     def download_file(self, file_name):
         # Queries for list of chunks and owner from tracker
         request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_QUERY_CHUNKS, FILE_NAME: file_name}
@@ -113,12 +145,12 @@ class P2pClient:
             return
 
         # Send to P2P server to request for download
-        chunk_keys = list(response[file_name].keys())
+        chunk_keys = list(response[CHUNK_LIST].keys())
         for chunk_key in chunk_keys:
             if does_file_exist(create_chunk_file_name(file_name, chunk_key), self.directory):
                 print("Chunk " + str(chunk_key) + "already exists. Skipping download")
             else:
-                self.download_chunk_from_peer(file_name, chunk_key, response[file_name][chunk_key])
+                self.download_chunk_from_peer(file_name, chunk_key, response[CHUNK_LIST][chunk_key])
         
         # Check if all chunks are downloaded
         for chunk_key in chunk_keys:
@@ -157,7 +189,11 @@ class P2pClient:
     # }
     def craft_payload_for_tracker(self):
         payload = {}
-        payload[PAYLOAD_PEER_ID_KEY] = str(self.host)
+        if (self.is_hole_punching_enabled):
+            payload[PAYLOAD_PEER_ID_KEY] = str(str(self.external_ip) + ":" + str(self.external_port))
+        else:
+            payload[PAYLOAD_PEER_ID_KEY] = str(str(self.host) + ":" + str(P2P_SERVER_PORT))
+
         payload[PAYLOAD_LIST_OF_FILES_KEY] = self.files
         payload[PAYLOAD_LIST_OF_CHUNKS_KEY] = self.chunks
         payload[MESSAGE_TYPE] = TRACKER_REQUEST_TYPE_ADVERTISE
@@ -208,7 +244,7 @@ class P2pClient:
             string = ch.rsplit(".", 1)
             arr = string[0].rsplit("_", 1)
             file_name = arr[0]
-            chunk_number = arr[1]
+            chunk_number = int(arr[1])
             if file_name in dic:
                 dic[file_name].append((chunk_number, checksum))
             else:
@@ -234,7 +270,7 @@ class P2pClient:
                     chunk_file.seek(i * CHUNK_SIZE)
                     chunk_file_bytes = chunk_file.read(CHUNK_SIZE)
                     #checksum
-                    checksum = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
+                    checksum = hashlib.md5(chunk_file_bytes).hexdigest()
                     #put this in the dic
                     dic[PAYLOAD_LIST_OF_CHUNKS_KEY].append((i+1, checksum))
 

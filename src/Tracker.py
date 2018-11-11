@@ -32,7 +32,6 @@ class Tracker:
                 self.file_owners[file_name] = [peer_id]
             elif peer_id not in self.file_owners[file_name]:
                 self.file_owners[file_name].append(peer_id)
-
         for chunks_of_file_from_peer in payload[PAYLOAD_LIST_OF_CHUNKS_KEY]:
             fileName = chunks_of_file_from_peer[PAYLOAD_FILENAME_KEY]
             #for every chunk of the file
@@ -53,7 +52,6 @@ class Tracker:
                     self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY].append(peer_id)
                 #else:
                 # self.chunk_details[file_name][peer_id] = list(set(self.chunk_details[file_name][peer_id] + chunk_from_peer[PAYLOAD_LIST_OF_CHUNKS_KEY]))
-
         response = {MESSAGE_TYPE: TRACKER_RESPONSE_TYPE_ADVERTISE_SUCCESS}
 
         return response
@@ -77,7 +75,7 @@ class Tracker:
         # Adds chunk list to response if file exist
         else:
             response[MESSAGE_TYPE] = TRACKER_RESPONSE_TYPE_SUCCESS_QUERY_CHUNK_LIST
-            response[file_name] = self.entries[file_name]
+            response[CHUNK_LIST] = self.entries[file_name]
             return response
 
     def handle_list_all_available_files_message(self):
