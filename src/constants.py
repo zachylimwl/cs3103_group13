@@ -40,6 +40,7 @@ PAYLOAD_CHECKSUM_KEY = "checksum"
 PAYLOAD_FILENAME_KEY = "file_name"
 PAYLOAD_PEER_ID_KEY = "peer_id"
 PAYLOAD_PUBLIC_PEER_ID_KEY = "public_peer_id"
+
 PAYLOAD_NUMBER_OF_CHUNKS_KEY = "number_of_chunks"
 PAYLOAD_LIST_OF_CHUNKS_KEY = "chunks"
 PAYLOAD_LIST_OF_FILES_KEY = "files"
