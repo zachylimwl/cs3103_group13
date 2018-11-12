@@ -40,13 +40,19 @@ class P2pClient:
 
         internal_peer_ip = internal_ip.split(":")[0]
         internal_peer_port = int(internal_ip.split(":")[1])
+        print("Internal IP: " + internal_peer_ip)
+        print("Internal Port: " + str(internal_peer_port))
         file_chunk_request = self.create_file_chunk_request(file_name, chunk_number)
         # Retrieve chunk data from peer
         response = self.send_to_peer(file_chunk_request, internal_peer_ip, internal_peer_port)
-        if not response:
+        if response is None:
+            print("Internal IP address failed, trying external")
             external_peer_ip = external_ip.split(":")[0]
             external_peer_port = int(external_ip.split(":")[1])
             response = self.send_to_peer(file_chunk_request, external_peer_ip, external_peer_port)
+            if response is None:
+                print("Unable to connect to both IP addresses.")
+                return
         # Do Checksum check
         file_checksum = chunk_details[PAYLOAD_CHECKSUM_KEY]
         response_checksum = hashlib.md5(response).hexdigest()
@@ -84,12 +90,16 @@ class P2pClient:
     # Used for sending request to peer and retrieving the file chunk
     def send_to_peer(self, request, peer_ip, peer_port):
         sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sending_socket.connect((peer_ip, peer_port))
-        sending_socket.sendall(json.dumps(request).encode())
-        # Receive data
-        recv = sending_socket.recv(1024)
-        sending_socket.close()
-        return recv
+        sock.settimeout(5)
+        try:
+            sending_socket.connect((peer_ip, peer_port))
+            sending_socket.sendall(json.dumps(request).encode())
+            # Receive data
+            recv = sending_socket.recv(1024)
+            sending_socket.close()
+            return recv
+        except:
+            return None
 
     # Creates the message request for requesting a file chunk from another peer
     # Format:
