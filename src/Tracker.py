@@ -2,6 +2,7 @@ import socket
 import threading
 from threading import Lock
 import json
+import sys, errno
 
 from constants import *
 
@@ -102,20 +103,32 @@ class Tracker:
         response[MESSAGE_TYPE] = TRACKER_PEERS_AVAILABLE
         return response
 
-    def handle_exit_message(self, addr):
-        ip = addr[0]
+    def handle_exit_message(self, addr, payload):
+        ext_addr = payload[PAYLOAD_PUBLIC_PEER_ID_KEY]
+        peer = (addr[0] + ":" + str(addr[1]), ext_addr)
         files_to_delete = []
+        chunk_to_delete = []
 
+        # Remove peers from system and keep track of which chunks to remove from each files if no peers exists
         for file_name, chunks in self.entries.items():
             for chunk, details in chunks.items():
-                if chunk == PAYLOAD_NUMBER_OF_CHUNKS_KEY:
-                    continue
-                details[LIST_OF_PEERS_KEY].remove(ip)
-                if len(details[LIST_OF_PEERS_KEY]) == 0 and file_name not in files_to_delete:
-                    files_to_delete.append(file_name)
+                if peer in details[LIST_OF_PEERS_KEY]:
+                    details[LIST_OF_PEERS_KEY].remove(peer)
+                if len(details[LIST_OF_PEERS_KEY]) == 0:
+                    chunk_to_delete.append((file_name, chunk))
 
+        # Delete chunks belong to peers that have exited the system
+        for item in chunk_to_delete:
+            del(self.entries[item[0]][item[1]])
+
+        # Keep track of files that does not have any chunks
+        for file_name, chunks in self.entries.items():
+            if not chunks:
+                files_to_delete.append(file_name)
+
+        # Remove file that does not have any chunks
         for f in files_to_delete:
-            self.entries.pop(f)
+            del(self.entries[f])
 
         response = {MESSAGE_TYPE: TRACKER_RESPONSE_TYPE_EXIT}
 
@@ -151,14 +164,16 @@ class Tracker:
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT:
                         response = self.handle_content_query(payload)
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_EXIT:
-                        response = self.handle_exit_message(addr)
+                        response = self.handle_exit_message(addr, payload)
                     else:
                         response = {MESSAGE_TYPE: TRACKER_RESPONSE_TYPE_ERROR_NO_SUCH_MESSAGE_TYPE}
                     self.lock.release()
                 client.sendall(json.dumps(response).encode())
             except Exception as e:
                 client.close()
-                print(e)
+                if e.errno == errno.EPIPE:
+                    print("A client has closed its connection.")
+                #print(e)
                 break
 
 
