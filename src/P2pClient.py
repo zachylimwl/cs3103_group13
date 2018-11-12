@@ -32,11 +32,19 @@ class P2pClient:
         # Uses a random peer for now
         random_peer_index = randint(0, len(peer_list) - 1)
         peer = peer_list[random_peer_index]
-        peer_ip = peer.split(":")[0]
-        peer_port = int(peer.split(":")[1])
+        ### TO-DO CHANGE PEER_IP AND PORT ACCORDINGLY
+        internal_ip = peer[0]
+        external_ip = peer[1]
+
+        internal_peer_ip = internal_ip.split(":")[0]
+        internal_peer_port = int(internal_ip.split(":")[1])
         file_chunk_request = self.create_file_chunk_request(file_name, chunk_number)
         # Retrieve chunk data from peer
-        response = self.send_to_peer(file_chunk_request, peer_ip, peer_port)
+        response = self.send_to_peer(file_chunk_request, internal_peer_ip, internal_peer_port)
+        if not response:
+            external_peer_ip = external_ip.split(":")[0]
+            external_peer_port = int(external_ip.split(":")[1])
+            response = self.send_to_peer(file_chunk_request, external_peer_ip, external_peer_port)
         # Do Checksum check
         file_checksum = chunk_details[PAYLOAD_CHECKSUM_KEY]
         response_checksum = hashlib.md5(response).hexdigest()
