@@ -10,7 +10,6 @@ def listen_for_peers(q):
     q.put(server.hole_punching())
     server.listen_for_new_peer()
 
-
 def main():
     client = P2pClient(TRACKER_HOST, TRACKER_PORT)
     client.entry()

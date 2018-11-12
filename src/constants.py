@@ -7,9 +7,9 @@ CHUNK_SIZE = 1024
 CUSTOM_CHUNK_EXTENSION = ".chunk"
 DEFAULT_FILE_DIRECTORY = "../default_file_directory"
 
-
 MESSAGE_TYPE = "message_type"
 FILE_NAME = "file_name"
+CHUNK_LIST = "chunk_list"
 TRACKER_REQUEST_TYPE_ENTRY = "entry"
 TRACKER_REQUEST_TYPE_ADVERTISE = "advertise"
 TRACKER_REQUEST_TYPE_QUERY_CHUNKS = "query_chunks"
