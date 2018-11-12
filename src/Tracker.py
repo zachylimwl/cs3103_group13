@@ -20,7 +20,10 @@ class Tracker:
 
     def handle_advertise_message(self, payload):
         peer_id = payload[PAYLOAD_PEER_ID_KEY]
-
+        peer_id_pub = payload[PAYLOAD_PUBLIC_PEER_ID_KEY]
+        peer_id_tuple = (peer_id, peer_id_pub)
+        #then change all peer_id to peer_id_tuple
+        
         for file_from_peer in payload[PAYLOAD_LIST_OF_FILES_KEY]:
             file_name = file_from_peer[PAYLOAD_FILENAME_KEY]
             if file_name not in self.entries:
@@ -29,9 +32,9 @@ class Tracker:
                 # self.entries[file_name][PAYLOAD_NUMBER_OF_CHUNKS_KEY] = file_from_peer[PAYLOAD_NUMBER_OF_CHUNKS_KEY]
             if file_name not in self.file_owners:
                 #create new list for that peer_id
-                self.file_owners[file_name] = [peer_id]
-            elif peer_id not in self.file_owners[file_name]:
-                self.file_owners[file_name].append(peer_id)
+                self.file_owners[file_name] = [peer_id_tuple]
+            elif peer_id_tuple not in self.file_owners[file_name]:
+                self.file_owners[file_name].append(peer_id_tuple)
 
         for chunks_of_file_from_peer in payload[PAYLOAD_LIST_OF_CHUNKS_KEY]:
             fileName = chunks_of_file_from_peer[PAYLOAD_FILENAME_KEY]
@@ -47,13 +50,12 @@ class Tracker:
                     self.entries[fileName][chunk_num] = {}
                     self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY] = []
                     self.entries[fileName][chunk_num][PAYLOAD_CHECKSUM_KEY] = checksum
-                    self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY].append(peer_id)
+                    self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY].append(peer_id_tuple)
                 #if the chunk's file is inside, but the peer is not inside
-                elif peer_id not in self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY]:
-                    self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY].append(peer_id)
+                elif peer_id_tuple not in self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY]:
+                    self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY].append(peer_id_tuple)
                 #else:
                 # self.chunk_details[file_name][peer_id] = list(set(self.chunk_details[file_name][peer_id] + chunk_from_peer[PAYLOAD_LIST_OF_CHUNKS_KEY]))
-
         response = {MESSAGE_TYPE: TRACKER_RESPONSE_TYPE_ADVERTISE_SUCCESS}
 
         return response
@@ -72,13 +74,12 @@ class Tracker:
         response = {}
         # Checks if file exists
         if file_name not in self.entries:
-            print("File cannot be found in entries.\n")
             response[MESSAGE_TYPE] = TRACKER_RESPONSE_TYPE_ERROR
             return response
         # Adds chunk list to response if file exist
         else:
             response[MESSAGE_TYPE] = TRACKER_RESPONSE_TYPE_SUCCESS_QUERY_CHUNK_LIST
-            response[file_name] = self.entries[file_name]
+            response[CHUNK_LIST] = self.entries[file_name]
             return response
 
     def handle_list_all_available_files_message(self):
@@ -157,6 +158,7 @@ class Tracker:
                 client.sendall(json.dumps(response).encode())
             except Exception as e:
                 client.close()
+                print(e)
                 break
 
 
