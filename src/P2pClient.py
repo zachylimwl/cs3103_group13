@@ -29,7 +29,7 @@ class P2pClient:
         pass
 
     # Download chunk from peer
-    def download_chunk_from_peer(self, file_name, chunk_number, chunk_details):
+    def download_chunk_from_peer(self, file_name, chunk_number, chunk_details, ext_ip_port):
         peer_list = chunk_details[LIST_OF_PEERS_KEY]
         # Uses a random peer for now
         random_peer_index = randint(0, len(peer_list) - 1)
@@ -40,6 +40,8 @@ class P2pClient:
 
         internal_peer_ip = internal_ip.split(":")[0]
         internal_peer_port = int(internal_ip.split(":")[1])
+        external_peer_ip = external_ip.split(":")[0]
+        external_peer_port = int(external_ip.split(":")[1])
         print("Internal IP: " + internal_peer_ip)
         print("Internal Port: " + str(internal_peer_port))
         file_chunk_request = self.create_file_chunk_request(file_name, chunk_number)
@@ -47,8 +49,6 @@ class P2pClient:
         response = self.send_to_peer(file_chunk_request, internal_peer_ip, internal_peer_port)
         if response is None:
             print("Internal IP address failed, trying external")
-            external_peer_ip = external_ip.split(":")[0]
-            external_peer_port = int(external_ip.split(":")[1])
             response = self.send_to_peer(file_chunk_request, external_peer_ip, external_peer_port)
             if response is None:
                 print("Unable to connect to both IP addresses.")
@@ -59,7 +59,7 @@ class P2pClient:
         if (file_checksum == response_checksum):
             print("Downloading Chunk " + str(chunk_number) + " from peer")
             save_file_chunk(response, file_name, chunk_number, self.directory)
-            request = self.create_advertise_chunk_request(file_name, chunk_number, file_checksum)
+            request = self.create_advertise_chunk_request(file_name, chunk_number, file_checksum, ext_ip_port)
             print("Informing Tracker about chunk" + str(chunk_number) + " of " + file_name)
             self.send_to_tracker(request)
         else:
@@ -72,12 +72,12 @@ class P2pClient:
     # 'chunks': [{'file_name': 'file2.txt', 'chunks': [('1', '5fc51937c2e9e7f2e5971e2ec8e4f88b')]}], 
     # 'message_type': 'advertise'
     # }
-    def create_advertise_chunk_request(self, file_name, chunk_number, checksum):
+    def create_advertise_chunk_request(self, file_name, chunk_number, checksum, ext_ip_port):
         request = {}
-        if (self.is_hole_punching_enabled):
-            request[PAYLOAD_PEER_ID_KEY] = str(str(self.external_ip) + ":" + str(self.external_port))
+        if (ext_ip_port == OPEN or ext_ip_port == BLOCKED):
+            request[PAYLOAD_PUBLIC_PEER_ID_KEY] = None
         else:
-            request[PAYLOAD_PUBLIC_PEER_ID_KEY] = external_ip_port
+            request[PAYLOAD_PUBLIC_PEER_ID_KEY] = ext_ip_port
         
         request[PAYLOAD_PEER_ID_KEY] = str(str(self.host) + ":" + str(P2P_SERVER_PORT))
         files = []
@@ -90,7 +90,7 @@ class P2pClient:
     # Used for sending request to peer and retrieving the file chunk
     def send_to_peer(self, request, peer_ip, peer_port):
         sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(5)
+        sending_socket.settimeout(5)
         try:
             sending_socket.connect((peer_ip, peer_port))
             sending_socket.sendall(json.dumps(request).encode())
@@ -139,7 +139,7 @@ class P2pClient:
         else:
             print("File is ready for download")
 
-    def download_file(self, file_name):
+    def download_file(self, file_name, ext_ip_port):
         # Queries for list of chunks and owner from tracker
         request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_QUERY_CHUNKS, FILE_NAME: file_name}
         print("Requesting list of chunks from Tracker...")
@@ -156,7 +156,7 @@ class P2pClient:
             if does_file_exist(create_chunk_file_name(file_name, chunk_key), self.directory):
                 print("Chunk " + str(chunk_key) + "already exists. Skipping download")
             else:
-                self.download_chunk_from_peer(file_name, chunk_key, response[CHUNK_LIST][chunk_key])
+                self.download_chunk_from_peer(file_name, chunk_key, response[CHUNK_LIST][chunk_key], ext_ip_port)
         
         # Check if all chunks are downloaded
         for chunk_key in chunk_keys:

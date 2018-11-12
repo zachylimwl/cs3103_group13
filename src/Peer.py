@@ -33,7 +33,7 @@ def main():
             client.query_for_content(file_name)
         elif option == P2P_SERVER_REQUEST_TYPE_DOWNLOAD_CODE:
             file_name = input("File Name: ")
-            client.download_file(file_name)
+            client.download_file(file_name, ext_ip_port)
         elif option == TRACKER_REQUEST_TYPE_ADVERTISE_CODE:
             client.advertise(ext_ip_port)
         elif option == TRACKER_REQUEST_TYPE_EXIT_CODE:
