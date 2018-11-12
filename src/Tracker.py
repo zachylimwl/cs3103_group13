@@ -2,6 +2,7 @@ import socket
 import threading
 from threading import Lock
 import json
+import sys, errno
 
 from constants import *
 
@@ -170,7 +171,9 @@ class Tracker:
                 client.sendall(json.dumps(response).encode())
             except Exception as e:
                 client.close()
-                print(e)
+                if e.errno == errno.EPIPE:
+                    print("A client has closed its connection.")
+                #print(e)
                 break
 
 
