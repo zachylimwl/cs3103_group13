@@ -160,6 +160,7 @@ class Tracker:
                 client.sendall(json.dumps(response).encode())
             except Exception as e:
                 client.close()
+                print(e)
                 break
 
 
