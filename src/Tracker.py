@@ -55,8 +55,6 @@ class Tracker:
                 #if the chunk's file is inside, but the peer is not inside
                 elif peer_id_tuple not in self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY]:
                     self.entries[fileName][chunk_num][LIST_OF_PEERS_KEY].append(peer_id_tuple)
-                #else:
-                # self.chunk_details[file_name][peer_id] = list(set(self.chunk_details[file_name][peer_id] + chunk_from_peer[PAYLOAD_LIST_OF_CHUNKS_KEY]))
         response = {MESSAGE_TYPE: TRACKER_RESPONSE_TYPE_ADVERTISE_SUCCESS}
 
         return response
