@@ -9,7 +9,7 @@ from constants import *
 class Tracker:
     def __init__(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.bind((TRACKER_HOST, TRACKER_PORT))
+        self.socket.bind((AWS_TRACKER_HOST, TRACKER_PORT))
         self.lock = Lock()
         self.file_details = {}
         self.file_owners = {} #for query 2: asking for files owners
