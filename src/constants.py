@@ -1,5 +1,7 @@
 AWS_TRACKER_HOST = "0.0.0.0"
 TRACKER_HOST = "18.221.189.118"
+AWS_TURN_SERVER_HOST = "0.0.0.0"
+TURN_PORT = 8000
 TRACKER_PORT = 5000
 P2P_SERVER_HOST = "127.0.0.1"
 P2P_SERVER_PORT = 65433
@@ -7,6 +9,7 @@ RECEIVE_SIZE_BYTE = 1024
 CHUNK_SIZE = 1024
 CUSTOM_CHUNK_EXTENSION = ".chunk"
 DEFAULT_FILE_DIRECTORY = "../default_file_directory"
+
 
 
 MESSAGE_TYPE = "message_type"
@@ -55,6 +58,9 @@ TRACKER_PEERS_AVAILABLE = "peers_available"
 # Error messages
 TRACKER_FILE_NOT_FOUND = "file_not_found"
 TRACKER_PEERS_NOT_FOUND = "peers_not_found"
+
+
+RELAYED_TRANSPORT_ADDRESS_KEY = "relay_transport_address"
 
 OPENING_MESSAGE = """
 ========================================================================
