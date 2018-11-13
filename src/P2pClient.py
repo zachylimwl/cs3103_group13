@@ -211,7 +211,6 @@ class P2pClient:
 
     def send_to_tracker(self, request):
         try:
-            print(request)
             self.trackerSocketConnection.sendall(json.dumps(request).encode())
             response = json.loads(self.trackerSocketConnection.recv(RECEIVE_SIZE_BYTE))
             return response
