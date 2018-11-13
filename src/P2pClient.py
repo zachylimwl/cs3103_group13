@@ -34,7 +34,7 @@ class P2pClient:
         # Uses a random peer for now
         random_peer_index = randint(0, len(peer_list) - 1)
         peer = peer_list[random_peer_index]
-        ### TO-DO CHANGE PEER_IP AND PORT ACCORDINGLY
+        
         internal_ip = peer[0]
         external_ip = peer[1]
 

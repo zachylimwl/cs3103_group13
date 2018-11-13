@@ -29,8 +29,6 @@ class Tracker:
             file_name = file_from_peer[PAYLOAD_FILENAME_KEY]
             if file_name not in self.entries:
                 self.entries[file_name] = {}
-                # Temporary removal for easier iteration (I think its not really needed /Sherina)
-                # self.entries[file_name][PAYLOAD_NUMBER_OF_CHUNKS_KEY] = file_from_peer[PAYLOAD_NUMBER_OF_CHUNKS_KEY]
             if file_name not in self.file_owners:
                 #create new list for that peer_id
                 self.file_owners[file_name] = [peer_id_tuple]
