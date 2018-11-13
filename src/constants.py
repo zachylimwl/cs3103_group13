@@ -66,7 +66,7 @@ CS3103 P2P Client. Please choose from the following list of commands:
 1. List all files
 Enter: 1
 
-2. List peers with the file you want
+2. Check if file is available for download
 Enter: 2
 
 3. Download file
