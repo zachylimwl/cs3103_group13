@@ -103,9 +103,10 @@ class Tracker:
         response[MESSAGE_TYPE] = TRACKER_PEERS_AVAILABLE
         return response
 
-    def handle_exit_message(self, addr, payload):
+    def handle_exit_message(self, payload):
         ext_addr = payload[PAYLOAD_PUBLIC_PEER_ID_KEY]
-        peer = (addr[0] + ":" + str(addr[1]), ext_addr)
+        int_addr = payload[PAYLOAD_PEER_ID_KEY]
+        peer = (int_addr, ext_addr)
         files_to_delete = []
         chunk_to_delete = []
 
@@ -138,7 +139,7 @@ class Tracker:
         self.socket.listen()
         while True:
             client, addr = self.socket.accept()
-            threading.Thread(target=self.listen_to_client, args=(client, addr)).start()
+            threading.Thread(target=self.listen_to_client, args=(client,)).start()
 
     def displayEntries(self):
         print()
@@ -146,7 +147,7 @@ class Tracker:
         print()
         print(self.entries)
 
-    def listen_to_client(self, client, addr):
+    def listen_to_client(self, client):
         response = {}
         while True:
             try:
@@ -164,7 +165,7 @@ class Tracker:
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_QUERY_FOR_CONTENT:
                         response = self.handle_content_query(payload)
                     elif payload[MESSAGE_TYPE] == TRACKER_REQUEST_TYPE_EXIT:
-                        response = self.handle_exit_message(addr, payload)
+                        response = self.handle_exit_message(payload)
                     else:
                         response = {MESSAGE_TYPE: TRACKER_RESPONSE_TYPE_ERROR_NO_SUCH_MESSAGE_TYPE}
                     self.lock.release()

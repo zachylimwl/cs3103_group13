@@ -178,7 +178,9 @@ class P2pClient:
         print(END_MESSAGE)
 
     def exit(self):
-        request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_EXIT, PAYLOAD_PUBLIC_PEER_ID_KEY: self.ext_ip_port}
+        request = {MESSAGE_TYPE: TRACKER_REQUEST_TYPE_EXIT,
+                   PAYLOAD_PUBLIC_PEER_ID_KEY: self.ext_ip_port,
+                   PAYLOAD_PEER_ID_KEY: str(str(self.host) + ":" + str(self.port))}
 
         response = self.send_to_tracker(request)
 
