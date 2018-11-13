@@ -42,16 +42,15 @@ class P2pClient:
         internal_peer_port = int(internal_ip.split(":")[1])
         external_peer_ip = external_ip.split(":")[0]
         external_peer_port = int(external_ip.split(":")[1])
-        print("Internal IP: " + internal_peer_ip)
-        print("Internal Port: " + str(internal_peer_port))
+        
         file_chunk_request = self.create_file_chunk_request(file_name, chunk_number)
         # Retrieve chunk data from peer
         response = self.send_to_peer(file_chunk_request, internal_peer_ip, internal_peer_port)
         if response is None:
             print("Internal IP address failed, trying external")
-            response = self.send_to_peer(file_chunk_request, external_peer_ip, external_peer_port)
+            response = self.send_to_peer(file_chunk_request, external_peer_ip, internal_peer_port)
             if response is None:
-                print("Unable to connect to both IP addresses.")
+                print("Unable to connect to both IP addresses. Please try again")
                 return
         # Do Checksum check
         file_checksum = chunk_details[PAYLOAD_CHECKSUM_KEY]
@@ -89,6 +88,7 @@ class P2pClient:
 
     # Used for sending request to peer and retrieving the file chunk
     def send_to_peer(self, request, peer_ip, peer_port):
+        print("Trying to connect to Peer at IP: " + peer_ip + " Port: " + str(peer_port))
         sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sending_socket.settimeout(5)
         try:
@@ -99,6 +99,7 @@ class P2pClient:
             sending_socket.close()
             return recv
         except:
+            print("Error in Connecting to this address")
             return None
 
     # Creates the message request for requesting a file chunk from another peer
@@ -210,6 +211,7 @@ class P2pClient:
 
     def send_to_tracker(self, request):
         try:
+            print(request)
             self.trackerSocketConnection.sendall(json.dumps(request).encode())
             response = json.loads(self.trackerSocketConnection.recv(RECEIVE_SIZE_BYTE))
             return response
