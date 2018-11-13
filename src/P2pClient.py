@@ -89,7 +89,7 @@ class P2pClient:
 
     # Used for sending request to peer and retrieving the file chunk
     def send_to_peer(self, request, peer_ip, peer_port):
-        print("Connecting to Peer (" + peer_ip + ":" + str(peer_port + ")"))
+        print("Connecting to Peer (" + str(peer_ip) + ":" + str(peer_port + ")"))
         sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sending_socket.settimeout(5)
         try:
