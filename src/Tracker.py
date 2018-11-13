@@ -174,7 +174,6 @@ class Tracker:
                 client.close()
                 if e.errno == errno.EPIPE:
                     print("A client has closed its connection.")
-                #print(e)
                 break
 
 

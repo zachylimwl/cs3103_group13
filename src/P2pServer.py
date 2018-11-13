@@ -7,6 +7,7 @@ from pynat import *
 from constants import *
 from FileUtilities import *
 
+
 class P2pServer:
 
     def __init__(self):
@@ -27,7 +28,6 @@ class P2pServer:
         while True:
             data = json.loads(client.recv(RECEIVE_SIZE_BYTE))
             if data[MESSAGE_TYPE] == PEER_REQUEST_TYPE_CHUNK_DOWNLOAD:
-                print("Peer Connected to P2PServer, sending requested file")
                 file_name = data[FILE_NAME]
                 chunk_number = data[PEER_REQUEST_TYPE_CHUNK_NUMBER]
                 chunk_bytes = self.get_file_chunk_to_send(file_name, chunk_number)
