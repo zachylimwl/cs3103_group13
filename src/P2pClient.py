@@ -34,7 +34,7 @@ class P2pClient:
         # Uses a random peer for now
         random_peer_index = randint(0, len(peer_list) - 1)
         peer = peer_list[random_peer_index]
-        
+
         internal_ip = peer[0]
         external_ip = peer[1]
 
@@ -47,10 +47,11 @@ class P2pClient:
         # Retrieve chunk data from peer
         response = self.send_to_peer(file_chunk_request, internal_peer_ip, internal_peer_port)
         if response is None:
-            print("Internal IP address failed, trying external")
+            print("Internal IP connection failed")
             response = self.send_to_peer(file_chunk_request, external_peer_ip, internal_peer_port)
             if response is None:
-                print("Unable to connect to both IP addresses. Please try again")
+                print("External IP connection failed")
+                print("Peer cannot be found")
                 return
         # Do Checksum check
         file_checksum = chunk_details[PAYLOAD_CHECKSUM_KEY]
@@ -88,7 +89,7 @@ class P2pClient:
 
     # Used for sending request to peer and retrieving the file chunk
     def send_to_peer(self, request, peer_ip, peer_port):
-        print("Trying to connect to Peer at IP: " + peer_ip + " Port: " + str(peer_port))
+        print("Connecting to Peer (" peer_ip + ":" + str(peer_port + ")"))
         sending_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sending_socket.settimeout(5)
         try:
@@ -99,7 +100,6 @@ class P2pClient:
             sending_socket.close()
             return recv
         except:
-            print("Error in Connecting to this address")
             return None
 
     # Creates the message request for requesting a file chunk from another peer
